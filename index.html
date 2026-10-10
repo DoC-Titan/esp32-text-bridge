@@ -3,120 +3,235 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#111827">
-<title>ESP32 Text Bridge</title>
+<meta name="theme-color" content="#101726">
+<title>ESP32 Text Bridge — Smart Code</title>
 <style>
-:root{color-scheme:dark;--bg:#0b1020;--panel:#151e30;--border:#344258;--text:#f3f6ff;--muted:#b6c2d4;--blue:#60a5fa;--green:#86efac}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px system-ui,-apple-system,Segoe UI,sans-serif}.wrap{max-width:760px;margin:32px auto;padding:0 18px}h1{margin:0 0 4px;font-size:1.8rem}p{color:var(--muted);line-height:1.5}.panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;margin:18px 0}button{border:0;border-radius:9px;padding:12px 17px;font:inherit;font-weight:600;cursor:pointer;background:#2563eb;color:white}button:disabled{opacity:.45;cursor:not-allowed}button.secondary{background:#334155}button.danger{background:#9f3030}.actions{display:flex;gap:10px;flex-wrap:wrap}textarea{width:100%;min-height:250px;resize:vertical;background:#0a1220;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:13px;font:14px/1.5 Consolas,Monaco,monospace;tab-size:4}textarea:focus{outline:2px solid var(--blue)}.heading{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}.status{color:var(--muted);font-size:.95rem}.good{color:var(--green)}.error{color:#fca5a5}.small{font-size:.88rem}.meter{height:12px;background:#334155;border-radius:20px;overflow:hidden;margin:12px 0}.meter>div{height:100%;background:#60a5fa;width:0%;transition:width .12s}#log{white-space:pre-wrap;overflow-wrap:anywhere;background:#0a1220;padding:13px;border-radius:9px;min-height:60px;color:#cbd5e1;font:13px/1.6 Consolas,monospace}.pill{display:inline-block;padding:5px 9px;border-radius:18px;background:#334155;font-size:.85rem}.footer{margin-bottom:36px}
+:root{color-scheme:dark;--bg:#0b1120;--panel:#172135;--field:#0d1729;--border:#344358;--text:#f1f5fe;--muted:#b6c6da;--blue:#60a5fa;--green:#86efac;--yellow:#fbbf24;--red:#fca5a5}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Arial,sans-serif}.wrap{max-width:820px;margin:26px auto 44px;padding:0 17px}h1{font-size:1.75rem;margin:0 0 5px}h2{font-size:1.1rem;margin:0}p{color:var(--muted);margin:9px 0 14px}.panel{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:19px;margin:16px 0}.heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:9px}.small{font-size:.88rem}.muted{color:var(--muted)}.pill{background:#334155;padding:5px 10px;border-radius:20px;font-size:.83rem}.good{color:var(--green)}.warn{color:var(--yellow)}.error{color:var(--red)}label{display:block;margin-bottom:5px;font-weight:650}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}button{border:0;border-radius:9px;padding:11px 15px;font:inherit;font-weight:650;color:#fff;background:#2563eb;cursor:pointer}button.secondary{background:#334155}button:disabled{opacity:.46;cursor:not-allowed}select,textarea{background:var(--field);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:12px;font:inherit}select{width:100%}textarea{width:100%;height:235px;resize:vertical;font:14px/1.5 Consolas,Monaco,monospace;tab-size:4}textarea:focus,select:focus,button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.cols{display:grid;grid-template-columns:2fr 1fr;gap:12px}.hint{margin-top:8px;font-size:.88rem;color:var(--muted)}.note{margin-top:11px;padding:11px 12px;background:#22314a;border-left:3px solid var(--blue);border-radius:5px;color:#d9e7f9}.note.warning{border-color:var(--yellow);background:#383021;color:#ffedbc}.note.problem{border-color:#f87171;background:#3c2530;color:#ffd4d4}.stats{display:flex;gap:13px;flex-wrap:wrap;font-size:.87rem;color:var(--muted)}pre{background:var(--field);border:1px solid var(--border);border-radius:9px;min-height:68px;max-height:230px;overflow:auto;padding:12px;white-space:pre;tab-size:4;font:13px/1.55 Consolas,Monaco,monospace}.subheading{font-weight:700;margin-top:17px}.meter{height:11px;background:#334155;border-radius:12px;overflow:hidden;margin:14px 0 11px}.meter>div{height:100%;width:0%;background:var(--blue);transition:width .12s}#log{white-space:pre-wrap;overflow-wrap:anywhere}.footer{font-size:.83rem;line-height:1.6}
+@media(max-width:600px){.cols{grid-template-columns:1fr}.panel{padding:15px}.wrap{padding:0 11px}}
 </style>
 </head>
 <body><main class="wrap">
-<h1>ESP32 Text Bridge</h1><p>Send copied text over Bluetooth to your ESP32. Press the ESP32 <strong>BOOT</strong> button to type it on your main PC.</p>
+<h1>ESP32 Text Bridge</h1>
+<p>Send text to your ESP32 over Bluetooth. Press <strong>BOOT</strong> to type it on your PC. Smart Code can compensate for some editor-inserted indentation.</p>
 <section class="panel">
-  <div class="heading"><h2>1. Bluetooth connection</h2><span id="connectionStatus" class="pill">Disconnected</span></div>
+  <div class="heading"><h2>1. Bluetooth</h2><span id="connectionStatus" class="pill">Disconnected</span></div>
   <div class="actions"><button id="connectBtn">Connect ESP32</button><button id="disconnectBtn" class="secondary" disabled>Disconnect</button></div>
-  <p class="small">Use Chrome on Android or Chrome/Edge on Windows. The page must be hosted on HTTPS (GitHub Pages works). Keep the main PC paired as a keyboard.</p>
+  <p class="small">Android Chrome or Windows Chrome/Edge over HTTPS. Connect Windows first with your current ESP32 firmware.</p>
 </section>
 <section class="panel">
-  <div class="heading"><h2>2. Text to transmit</h2><span id="count" class="status">0 / 6000 bytes</span></div>
-  <textarea id="message" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="Paste your code or text here..."></textarea>
-  <div class="actions" style="margin-top:12px"><button id="pasteBtn" class="secondary">Paste clipboard</button><button id="clearBtn" class="secondary">Clear text</button><button id="sendBtn" disabled>Send to ESP32</button></div>
-  <div class="meter" role="progressbar" aria-label="Transfer progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack"><div id="progress"></div></div>
-  <div class="status" id="transferStatus" aria-live="polite">Waiting for connection</div>
+  <div class="heading"><h2>2. Paste text / code</h2><span id="originalCount" class="muted small">0 / 6000 bytes</span></div>
+  <textarea id="message" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Text to transmit" placeholder="Paste your original code here..."></textarea>
+  <div class="actions"><button id="pasteBtn" class="secondary">Paste clipboard</button><button id="clearBtn" class="secondary">Clear</button></div>
 </section>
-<section class="panel"><h2>3. Transfer log</h2><div id="log" role="log" aria-live="polite">Ready.</div><p class="small">The ESP32 firmware accepts printable ASCII, tabs and line breaks. Non-ASCII characters (including emojis and smart quotes) are rejected to prevent altered output. Line endings are normalized to LF.</p></section>
-<p class="footer small">Protocol: C (clear), A + up to 19 text bytes (append), E (finish). Each BLE write is acknowledged at the GATT transport level; this firmware does not yet return an application-level checksum/receipt. Only send text to devices you control.</p>
+<section class="panel">
+  <div class="heading"><h2>3. Typing mode</h2><span id="modeBadge" class="pill">Normal</span></div>
+  <div class="cols">
+    <div>
+      <label for="mode">Editor behavior</label>
+      <select id="mode">
+        <option value="normal">Normal — exact characters, no compensation</option>
+        <option value="inherit">Smart — editor copies previous indentation</option>
+        <option value="python">Smart — Python auto-indent after :</option>
+        <option value="braces">Smart — braces { } / C, Java, JavaScript</option>
+      </select>
+    </div>
+    <div>
+      <label for="indentSize">Indent size</label>
+      <select id="indentSize"><option value="4">4 spaces</option><option value="2">2 spaces</option><option value="8">8 spaces</option></select>
+    </div>
+  </div>
+  <div id="modeExplainer" class="note">Normal sends exactly what you paste. Best for Notepad or coding editors with auto-indent disabled.</div>
+  <div class="subheading">Transmitted keystroke text (preview)</div>
+  <p class="hint">Visible space markers are for preview only: <code>·</code> = space, <code>→</code> = tab. The editor may add the omitted spaces automatically.</p>
+  <pre id="preview" aria-label="Typing stream preview">Paste text to preview…</pre>
+  <div id="analysis" class="note" role="status">Waiting for text.</div>
+  <div class="stats"><span id="sendCount">0 bytes to transmit</span><span id="lineCount">0 lines</span></div>
+  <div class="actions"><button id="sendBtn" disabled>Send to ESP32</button></div>
+  <div class="meter" role="progressbar" aria-label="BLE transfer progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack"><div id="progress"></div></div>
+  <p id="transferStatus" class="small" aria-live="polite">Waiting for Bluetooth connection.</p>
+</section>
+<section class="panel">
+  <h2>4. Transfer log</h2>
+  <pre id="log" role="log" aria-live="polite">Ready.</pre>
+  <p class="footer muted">Same firmware protocol: C / A + 19 bytes / E. Text limit: 6,000 bytes. Only printable ASCII, tabs, and newlines. Bluetooth acknowledgements confirm writes; where available, the page also checks your newer firmware's READY byte count.</p>
+</section>
+<p class="footer muted">Smart modes predict editor behavior; they cannot read your cursor position. Auto-closing quotes/brackets and auto-formatting can still interfere. When a line requires removing existing automatic indentation, this website blocks Smart sending rather than risk damaging code. That case needs editor configuration or future firmware support for Backspace.</p>
 </main>
 <script>
 'use strict';
-const SERVICE_UUID = '76a80001-8c7b-4c6b-9211-57a2b1d00001';
-const WRITE_UUID = '76a80002-8c7b-4c6b-9211-57a2b1d00001';
-const MAX_BYTES = 6000;
-const CHUNK_BYTES = 19;
-const encoder = new TextEncoder();
-const $ = id => document.getElementById(id);
-let device = null, characteristic = null, busy = false;
-const log = s => { $('log').textContent += '\n' + s; $('log').scrollTop = $('log').scrollHeight; };
-function normalize(s){return s.replace(/\r\n?/g,'\n');}
-function validate(s){
-  const text = normalize(s);
-  const bytes = encoder.encode(text);
-  if (!bytes.length) throw new Error('Paste some text first.');
-  if (bytes.length > MAX_BYTES) throw new Error('Text exceeds 6000 bytes.');
-  for (let i=0;i<text.length;i++){
+const SERVICE_UUID='76a80001-8c7b-4c6b-9211-57a2b1d00001';
+const WRITE_UUID='76a80002-8c7b-4c6b-9211-57a2b1d00001';
+const STATUS_UUID='76a80003-8c7b-4c6b-9211-57a2b1d00001';
+const MAX_BYTES=6000, CHUNK_BYTES=19;
+const encoder=new TextEncoder(), decoder=new TextDecoder();
+const $=id=>document.getElementById(id);
+let device=null, characteristic=null, statusCharacteristic=null, busy=false;
+const log=s=>{$('log').textContent+='\n'+s;$('log').scrollTop=$('log').scrollHeight;};
+const normalize=s=>s.replace(/\r\n?/g,'\n');
+const leadingSpaces=s=>(s.match(/^ */)||[''])[0].length;
+function checkASCII(text){
+  for(let i=0;i<text.length;i++){
     const c=text.charCodeAt(i);
-    if (!((c>=32 && c<=126)||c===10||c===9)) throw new Error('Unsupported character at position '+(i+1)+'. Only ASCII, tabs, and newlines are supported.');
+    if(!((c>=32&&c<=126)||c===9||c===10))throw Error('Unsupported character at position '+(i+1)+'. ASCII only (plus Tab and Enter).');
   }
-  return bytes;
 }
-function refresh(){
-  const active=!!(device?.gatt?.connected && characteristic);
-  $('connectionStatus').textContent=active?'Connected':'Disconnected';
-  $('connectionStatus').className='pill'+(active?' good':'');
-  $('connectBtn').disabled=busy||active;
-  $('disconnectBtn').disabled=busy||!device?.gatt?.connected;
-  $('sendBtn').disabled=busy||!active;
-  $('message').disabled=busy;
-  $('clearBtn').disabled=busy;
-  $('pasteBtn').disabled=busy;
-  $('count').textContent=encoder.encode(normalize($('message').value)).length+' / '+MAX_BYTES+' bytes';
+function buildPlan(original,mode,indent){
+  const source=normalize(original), warnings=[], blockers=[];
+  checkASCII(source);
+  if(!source.length)return {source,transmit:'',warnings,blockers,lines:0};
+  if(mode==='normal')return {source,transmit:source,warnings,blockers,lines:source.split('\n').length};
+  const lines=source.split('\n');
+  if(lines.some(line=>/^\s*\t/.test(line))){
+    blockers.push('Leading Tab characters detected. Convert leading tabs to spaces first, or use Normal mode.');
+  }
+  const output=[];
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i],desired=leadingSpaces(line);
+    if(i===0){output.push(line);continue;}
+    const prev=lines[i-1], prevTrim=prev.trimEnd(), currTrim=line.trimStart();
+    let predicted=leadingSpaces(prev);
+    if(mode==='python' && /:\s*$/.test(prevTrim))predicted+=indent;
+    if(mode==='braces'){
+      if(/[\{\[\(]\s*$/.test(prevTrim))predicted+=indent;
+      if(/^[}\])]/.test(currTrim)){
+        predicted=Math.max(0,predicted-indent);
+        warnings.push('Line '+(i+1)+': assumes the editor dedents when typing a closing bracket.');
+      }
+    }
+    if(!line.trim()){
+      if(i<lines.length-1) warnings.push('Line '+(i+1)+': blank-line indentation behavior varies between editors.');
+      output.push('');
+      continue;
+    }
+    if(predicted>desired){
+      blockers.push('Line '+(i+1)+': editor is expected to insert '+predicted+' spaces but this line needs '+desired+'. A Backspace/dedent key is required.');
+      output.push(line.slice(desired));
+    }else{
+      output.push(line.slice(predicted));
+    }
+  }
+  return {source,transmit:output.join('\n'),warnings:[...new Set(warnings)],blockers,lines:lines.length};
 }
-function status(s,isError=false){ $('transferStatus').textContent=s; $('transferStatus').className='status'+(isError?' error':''); }
+function safePlan(){
+  try{return buildPlan($('message').value,$('mode').value,Number($('indentSize').value));}
+  catch(e){return {error:e.message,source:normalize($('message').value),transmit:'',warnings:[],blockers:[],lines:0};}
+}
+function pretty(s){return s.replace(/ /g,'·').replace(/\t/g,'→');}
+function status(s,error=false){$('transferStatus').textContent=s;$('transferStatus').className='small'+(error?' error':'');}
 function progress(p){$('progress').style.width=p+'%';$('progressTrack').setAttribute('aria-valuenow',String(p));}
-function disconnected(){characteristic=null;status('ESP32 disconnected.',true);log('Disconnected.');refresh();}
+function refresh(){
+  const connected=!!(device?.gatt?.connected&&characteristic), p=safePlan();
+  $('connectionStatus').textContent=connected?'Connected':'Disconnected';
+  $('connectionStatus').className='pill'+(connected?' good':'');
+  $('connectBtn').disabled=busy||connected;
+  $('disconnectBtn').disabled=busy||!device?.gatt?.connected;
+  $('message').disabled=busy;
+  $('pasteBtn').disabled=busy;$('clearBtn').disabled=busy;
+  $('mode').disabled=busy;$('indentSize').disabled=busy;
+  const originalBytes=encoder.encode(p.source||'').length;
+  const transmitBytes=encoder.encode(p.transmit||'').length;
+  $('originalCount').textContent=originalBytes+' / '+MAX_BYTES+' bytes original';
+  $('sendCount').textContent=transmitBytes+' / '+MAX_BYTES+' bytes to send';
+  $('lineCount').textContent=(p.lines||0)+' lines';
+  const mode=$('mode').value;
+  $('modeBadge').textContent=mode==='normal'?'Normal':'Smart Code';
+  $('modeExplainer').textContent={
+    normal:'Normal sends every original character. Use when the destination editor has auto-indentation disabled.',
+    inherit:'Assumes Enter automatically copies the previous line’s leading spaces. This is a prediction, not a measurement.',
+    python:'Assumes the editor copies indentation and adds one level after a line ending with :. Best for Python editors using this behavior.',
+    braces:'Assumes indentation increases after an opening bracket and closing brackets are auto-dedented. Editor-dependent; test carefully.'
+  }[mode];
+  $('indentSize').disabled=busy||!['python','braces'].includes(mode);
+  $('preview').textContent=transmitBytes?pretty(p.transmit):'Paste text to preview…';
+  let feedback='',cls='note';
+  if(p.error){feedback=p.error;cls+=' problem';}
+  else if(p.blockers.length){feedback='Cannot safely use Smart Mode:\n'+p.blockers.slice(0,5).join('\n')+(p.blockers.length>5?'\n…and '+(p.blockers.length-5)+' more lines.':'')+'\nSwitch to Normal or disable auto-indent in the editor.';cls+=' problem';}
+  else if(originalBytes>MAX_BYTES || transmitBytes>MAX_BYTES){feedback='Exceeds ESP32 buffer capacity of 6,000 bytes.';cls+=' problem';}
+  else if(p.warnings.length){feedback='Best-effort mode — verify your target editor behavior.\n'+p.warnings.slice(0,3).join('\n');cls+=' warning';}
+  else if(mode!=='normal'&&transmitBytes){feedback='Smart plan ready. Confirm the chosen editor profile before typing long code.';}
+  else{feedback='Normal mode ready. No formatting compensation applied.';}
+  $('analysis').textContent=feedback;$('analysis').className=cls;
+  $('sendBtn').disabled=busy||!connected||!transmitBytes||!!p.error||p.blockers.length>0||originalBytes>MAX_BYTES||transmitBytes>MAX_BYTES;
+}
+function disconnected(){characteristic=null;statusCharacteristic=null;status('ESP32 disconnected.',true);log('Disconnected.');refresh();}
 $('connectBtn').onclick=async()=>{
-  if(!navigator.bluetooth){status('Web Bluetooth unavailable. Use Android Chrome or desktop Chrome/Edge via HTTPS.',true);return;}
+  if(!navigator.bluetooth){status('Web Bluetooth unavailable. Use Android Chrome or Windows Chrome/Edge over HTTPS.',true);return;}
   busy=true;refresh();
   try{
     status('Select ESP32 TextBridge in the Bluetooth picker...');
-    device=await navigator.bluetooth.requestDevice({acceptAllDevices: true,optionalServices: [SERVICE_UUID]});
+    if(device?.gatt?.connected)device.gatt.disconnect();
+    device=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:[SERVICE_UUID]});
     device.addEventListener('gattserverdisconnected',disconnected);
     status('Connecting...');
     const server=await device.gatt.connect();
     const service=await server.getPrimaryService(SERVICE_UUID);
     characteristic=await service.getCharacteristic(WRITE_UUID);
-    status('Connected. Paste text, then tap Send.');
+    try{statusCharacteristic=await service.getCharacteristic(STATUS_UUID);}catch(e){statusCharacteristic=null;}
+    status('Connected. Paste code, select mode, then Send.');
     log('Connected to '+(device.name||'ESP32')+'.');
-  }catch(e){ status('Connection failed: '+e.message,true);log('Connection error: '+e.message); }
+  }catch(e){status('Connection failed: '+e.message,true);log('Connection error: '+e.message);}
   finally{busy=false;refresh();}
 };
 $('disconnectBtn').onclick=()=>{if(device?.gatt?.connected)device.gatt.disconnect();};
 $('message').addEventListener('input',refresh);
+$('mode').addEventListener('change',refresh);
+$('indentSize').addEventListener('change',refresh);
 $('clearBtn').onclick=()=>{$('message').value='';progress(0);refresh();};
 $('pasteBtn').onclick=async()=>{
   try{$('message').value=await navigator.clipboard.readText();refresh();status('Clipboard pasted.');}
-  catch(e){status('Clipboard access was blocked. Long-press the text field and choose Paste.',true);}
+  catch(e){status('Clipboard access blocked. Long-press the text field and use Paste.',true);}
 };
 async function write(b){
-  if(!device?.gatt?.connected || !characteristic) throw new Error('Bluetooth disconnected.');
+  if(!device?.gatt?.connected||!characteristic)throw Error('Bluetooth disconnected.');
   if(characteristic.writeValueWithResponse)await characteristic.writeValueWithResponse(b);
   else await characteristic.writeValue(b);
 }
+async function waitForReady(expected){
+  if(!statusCharacteristic)return null;
+  for(let i=0;i<12;i++){
+    const data=await statusCharacteristic.readValue();
+    const s=decoder.decode(data).replace(/\0/g,'').trim();
+    if(s.startsWith('ERR:'))throw Error('ESP32 reports '+s);
+    if(s.startsWith('READY:')){
+      const count=Number(s.slice(6));
+      if(count!==expected)throw Error('ESP32 accepted '+count+' of '+expected+' expected bytes. Do not type; resend.');
+      return s;
+    }
+    await new Promise(r=>setTimeout(r,100));
+  }
+  return 'No READY acknowledgement before timeout';
+}
 $('sendBtn').onclick=async()=>{
   if(busy)return;
-  let bytes;
-  try{bytes=validate($('message').value);}catch(e){status(e.message,true);return;}
+  const plan=safePlan();
+  if(plan.error||plan.blockers.length){status('Fix the Smart Code warnings before sending.',true);return;}
+  const bytes=encoder.encode(plan.transmit);
+  if(!bytes.length||bytes.length>MAX_BYTES){status('Input must be 1–6,000 ASCII bytes.',true);return;}
   busy=true;progress(0);refresh();
   try{
     status('Starting transfer...');
     await write(encoder.encode('C'));
     const total=Math.ceil(bytes.length/CHUNK_BYTES);
-    for(let offset=0,index=0;offset<bytes.length;offset+=CHUNK_BYTES,index++){
+    for(let offset=0,i=0;offset<bytes.length;offset+=CHUNK_BYTES,i++){
       const chunk=bytes.slice(offset,offset+CHUNK_BYTES);
       const packet=new Uint8Array(1+chunk.length);
-      packet[0]=65;
-      packet.set(chunk,1);
+      packet[0]=65;packet.set(chunk,1);
       await write(packet);
-      const pct=Math.floor(((index+1)/total)*95);
-      progress(pct);
-      status('Sending '+Math.min(offset+chunk.length,bytes.length)+' / '+bytes.length+' bytes ('+(index+1)+'/'+total+' chunks)');
+      const sent=Math.min(offset+chunk.length,bytes.length);
+      progress(Math.floor((i+1)*95/total));
+      status('Sending '+sent+' / '+bytes.length+' bytes ('+(i+1)+'/'+total+' packets)');
     }
     await write(encoder.encode('E'));
+    const acknowledgement=await waitForReady(bytes.length);
     progress(100);
-    status('Transfer completed. Press BOOT on the ESP32 to type.');
-    log('Sent '+bytes.length+' bytes in '+total+' chunks.');
-  }catch(e){status('Transfer interrupted: '+e.message+'. Resend the entire text.',true);log('Transfer error: '+e.message);}
+    const checked=acknowledgement&&acknowledgement.startsWith('READY:');
+    status(checked?'ESP32 confirmed '+bytes.length+' bytes. Press BOOT to type.':'BLE transfer completed. Press BOOT to type; no firmware receipt available.');
+    log('Sent '+bytes.length+' bytes in '+total+' packets ('+$('mode').selectedOptions[0].text+').'+(acknowledgement?' Status: '+acknowledgement:''));
+  }catch(e){status('Transfer issue: '+e.message,true);log('Transfer error: '+e.message);}
   finally{busy=false;refresh();}
 };
 refresh();
 </script>
-</body></html>
+</body>
+</html>
