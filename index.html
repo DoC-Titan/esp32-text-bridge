@@ -1,237 +1,235 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101726">
-<title>ESP32 Text Bridge — Smart Code</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ESP32 Text Bridge • Smart Python v1</title>
 <style>
-:root{color-scheme:dark;--bg:#0b1120;--panel:#172135;--field:#0d1729;--border:#344358;--text:#f1f5fe;--muted:#b6c6da;--blue:#60a5fa;--green:#86efac;--yellow:#fbbf24;--red:#fca5a5}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Arial,sans-serif}.wrap{max-width:820px;margin:26px auto 44px;padding:0 17px}h1{font-size:1.75rem;margin:0 0 5px}h2{font-size:1.1rem;margin:0}p{color:var(--muted);margin:9px 0 14px}.panel{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:19px;margin:16px 0}.heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:9px}.small{font-size:.88rem}.muted{color:var(--muted)}.pill{background:#334155;padding:5px 10px;border-radius:20px;font-size:.83rem}.good{color:var(--green)}.warn{color:var(--yellow)}.error{color:var(--red)}label{display:block;margin-bottom:5px;font-weight:650}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}button{border:0;border-radius:9px;padding:11px 15px;font:inherit;font-weight:650;color:#fff;background:#2563eb;cursor:pointer}button.secondary{background:#334155}button:disabled{opacity:.46;cursor:not-allowed}select,textarea{background:var(--field);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:12px;font:inherit}select{width:100%}textarea{width:100%;height:235px;resize:vertical;font:14px/1.5 Consolas,Monaco,monospace;tab-size:4}textarea:focus,select:focus,button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.cols{display:grid;grid-template-columns:2fr 1fr;gap:12px}.hint{margin-top:8px;font-size:.88rem;color:var(--muted)}.note{margin-top:11px;padding:11px 12px;background:#22314a;border-left:3px solid var(--blue);border-radius:5px;color:#d9e7f9}.note.warning{border-color:var(--yellow);background:#383021;color:#ffedbc}.note.problem{border-color:#f87171;background:#3c2530;color:#ffd4d4}.stats{display:flex;gap:13px;flex-wrap:wrap;font-size:.87rem;color:var(--muted)}pre{background:var(--field);border:1px solid var(--border);border-radius:9px;min-height:68px;max-height:230px;overflow:auto;padding:12px;white-space:pre;tab-size:4;font:13px/1.55 Consolas,Monaco,monospace}.subheading{font-weight:700;margin-top:17px}.meter{height:11px;background:#334155;border-radius:12px;overflow:hidden;margin:14px 0 11px}.meter>div{height:100%;width:0%;background:var(--blue);transition:width .12s}#log{white-space:pre-wrap;overflow-wrap:anywhere}.footer{font-size:.83rem;line-height:1.6}
-@media(max-width:600px){.cols{grid-template-columns:1fr}.panel{padding:15px}.wrap{padding:0 11px}}
+:root{color-scheme:dark;--bg:#0b1220;--panel:#121e30;--border:#2d405d;--input:#071321;--ink:#e7f0fc;--muted:#a5b8d0;--accent:#70adff;--green:#82e6b0;--red:#ff9898;--yellow:#f3cb80}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1180px;margin:auto;padding:26px 17px 65px}h1{font-size:clamp(25px,3.4vw,36px);margin:5px 0 3px}h2{font-size:16px;margin:0 0 12px}.minor{font-size:12px;color:var(--muted)}.eyebrow{font-size:11px;color:var(--accent);letter-spacing:.15em;font-weight:700}p{margin:8px 0}.panels{display:grid;grid-template-columns:1.17fr .83fr;gap:14px;margin-top:18px}.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:17px;min-width:0}.wide{grid-column:1/-1}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.gap{margin:13px 0}.button{border:1px solid #5376ad;border-radius:9px;padding:10px 14px;background:#254a80;color:white;cursor:pointer;font-weight:650;font:inherit}.button:hover{background:#315b95}.button.secondary{background:#1d2e47;color:var(--ink);border-color:#536680}.button:disabled{opacity:.4;cursor:not-allowed}textarea,select{background:var(--input);border:1px solid #405776;border-radius:8px;color:var(--ink);font:13px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}textarea{width:100%;height:315px;padding:12px;resize:vertical;white-space:pre;tab-size:4}select{width:100%;padding:10px}label{display:block;font-weight:650;font-size:12px;margin:8px 0 5px}.switch{display:flex;gap:10px;align-items:center}.switch input{accent-color:#70adff}.switch label{margin:0}.status{background:#0d192b;border-radius:9px;border:1px solid var(--border);padding:11px;white-space:pre-wrap}.warn{color:var(--yellow)}.good{color:var(--green)}.bad{color:var(--red)}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.metric{border:1px solid var(--border);border-radius:9px;padding:12px;background:#0e192a}.metric strong{display:block;font-size:21px}.code{background:var(--input);border:1px solid var(--border);border-radius:9px;padding:10px;white-space:pre;overflow:auto;max-height:330px;tab-size:4;font:12px/1.65 ui-monospace,Consolas,monospace}.columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.progress{height:8px;background:#23344d;border-radius:99px;overflow:hidden}.progress>div{width:0%;height:100%;background:#6eaefa;transition:width .16s}.log{max-height:220px;min-height:76px;overflow:auto;white-space:pre-wrap;word-break:break-word}.tag{border:1px solid #455b76;padding:4px 8px;border-radius:25px;font-size:11px;color:var(--muted)}ol{padding-left:21px;margin:8px 0}code{font-family:ui-monospace,Consolas,monospace}details summary{cursor:pointer;color:var(--accent)}@media(max-width:820px){.panels,.columns{grid-template-columns:1fr}.grid3{grid-template-columns:1fr 1fr}textarea{height:250px}.wrap{padding:15px 11px 40px}.card{padding:13px}}
 </style>
 </head>
 <body><main class="wrap">
-<h1>ESP32 Text Bridge</h1>
-<p>Send text to your ESP32 over Bluetooth. Press <strong>BOOT</strong> to type it on your PC. Smart Code can compensate for some editor-inserted indentation.</p>
-<section class="panel">
-  <div class="heading"><h2>1. Bluetooth</h2><span id="connectionStatus" class="pill">Disconnected</span></div>
-  <div class="actions"><button id="connectBtn">Connect ESP32</button><button id="disconnectBtn" class="secondary" disabled>Disconnect</button></div>
-  <p class="small">Android Chrome or Windows Chrome/Edge over HTTPS. Connect Windows first with your current ESP32 firmware.</p>
+<div class="eyebrow">ESP32 TEXT BRIDGE • PYTHON SMART HID V1</div>
+<h1>Simulate → Compare → Send</h1>
+<p class="minor">Python + empty VS Code editor first. The model is a test tool, not proof that your live editor behaves identically.</p>
+<div class="panels">
+<section class="card">
+<h2>1. Original Python code</h2>
+<textarea id="source" spellcheck="false" autocapitalize="off" autocorrect="off" placeholder="Paste correctly indented Python code here"></textarea>
+<div class="row between gap"><span id="count" class="minor"></span><div class="row"><button class="button secondary" id="sample">Load test</button><button class="button secondary" id="paste">Paste</button></div></div>
+<label for="mode">Typing mode</label>
+<select id="mode"><option value="smart">Smart Python — special HID keys</option><option value="normal">Normal — original text</option></select>
+<div class="row gap"><button class="button" id="simulate">Run simulation</button><button class="button secondary" id="copyPlan" disabled>Copy HID plan</button></div>
 </section>
-<section class="panel">
-  <div class="heading"><h2>2. Paste text / code</h2><span id="originalCount" class="muted small">0 / 6000 bytes</span></div>
-  <textarea id="message" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Text to transmit" placeholder="Paste your original code here..."></textarea>
-  <div class="actions"><button id="pasteBtn" class="secondary">Paste clipboard</button><button id="clearBtn" class="secondary">Clear</button></div>
+<section class="card">
+<h2>2. Simulator settings</h2>
+<label for="profile">Target editor behaviour</label>
+<select id="profile"><option value="python">VS Code-like: indent one level after colon</option><option value="copy">Copy previous indentation</option><option value="none">No auto-indentation</option></select>
+<label for="indent">Indent size</label>
+<select id="indent"><option value="4">4 spaces</option><option value="2">2 spaces</option><option value="8">8 spaces</option></select>
+<p class="minor">Before the first hardware test, use an empty <code>.py</code> file, auto-indent enabled and auto-closing brackets/quotes disabled in VS Code. Don't use an editor with suggested code completion until calibrated.</p>
+<div class="status gap" id="simMessage">Run simulation to validate the proposed keystrokes.</div>
+<details><summary>Why Home → Shift+End → Delete?</summary><p class="minor">After Enter, VS Code may add spaces. On a whitespace-only line, Home should move to column zero; Shift+End selects its whitespace; Delete removes it. The ESP32 then types the exact indentation from your source. No knowledge of block nesting is required. Some editors handle these keys differently, so we must verify in real VS Code.</p></details>
 </section>
-<section class="panel">
-  <div class="heading"><h2>3. Typing mode</h2><span id="modeBadge" class="pill">Normal</span></div>
-  <div class="cols">
-    <div>
-      <label for="mode">Editor behavior</label>
-      <select id="mode">
-        <option value="normal">Normal — exact characters, no compensation</option>
-        <option value="inherit">Smart — editor copies previous indentation</option>
-        <option value="python">Smart — Python auto-indent after :</option>
-        <option value="braces">Smart — braces { } / C, Java, JavaScript</option>
-      </select>
-    </div>
-    <div>
-      <label for="indentSize">Indent size</label>
-      <select id="indentSize"><option value="4">4 spaces</option><option value="2">2 spaces</option><option value="8">8 spaces</option></select>
-    </div>
-  </div>
-  <div id="modeExplainer" class="note">Normal sends exactly what you paste. Best for Notepad or coding editors with auto-indent disabled.</div>
-  <div class="subheading">Transmitted keystroke text (preview)</div>
-  <p class="hint">Visible space markers are for preview only: <code>·</code> = space, <code>→</code> = tab. The editor may add the omitted spaces automatically.</p>
-  <pre id="preview" aria-label="Typing stream preview">Paste text to preview…</pre>
-  <div id="analysis" class="note" role="status">Waiting for text.</div>
-  <div class="stats"><span id="sendCount">0 bytes to transmit</span><span id="lineCount">0 lines</span></div>
-  <div class="actions"><button id="sendBtn" disabled>Send to ESP32</button></div>
-  <div class="meter" role="progressbar" aria-label="BLE transfer progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack"><div id="progress"></div></div>
-  <p id="transferStatus" class="small" aria-live="polite">Waiting for Bluetooth connection.</p>
+<section class="card wide">
+<h2>3. Virtual editor comparison</h2>
+<div class="grid3 gap"><div class="metric"><span class="minor">Naive input</span><strong id="naiveResult">—</strong></div><div class="metric"><span class="minor">Smart input</span><strong id="smartResult">—</strong></div><div class="metric"><span class="minor">Smart plan</span><strong id="planResult">—</strong></div></div>
+<div class="columns"><div><label>Original code</label><pre class="code" id="originalView">—</pre></div><div><label>Simulated output</label><pre class="code" id="outputView">—</pre></div></div>
+<div class="minor gap" id="comparison"></div>
+<details><summary>Show proposed HID command plan</summary><pre class="code" id="planView">—</pre></details>
 </section>
-<section class="panel">
-  <h2>4. Transfer log</h2>
-  <pre id="log" role="log" aria-live="polite">Ready.</pre>
-  <p class="footer muted">Same firmware protocol: C / A + 19 bytes / E. Text limit: 6,000 bytes. Only printable ASCII, tabs, and newlines. Bluetooth acknowledgements confirm writes; where available, the page also checks your newer firmware's READY byte count.</p>
+<section class="card wide">
+<div class="row between"><h2>4. Bluetooth transfer</h2><span class="tag">Android Chrome / Windows Chrome or Edge • HTTPS</span></div>
+<div class="row gap"><button class="button" id="connect">Connect ESP32</button><button class="button secondary" id="disconnect" disabled>Disconnect</button><span id="connected" class="minor">Not connected</span></div>
+<div class="row gap"><button class="button" id="send" disabled>Send validated plan</button><span id="encodedCount" class="minor">0 / 6000 bytes</span></div>
+<div class="progress"><div id="bar"></div></div>
+<p class="status" id="transferMessage">Connect, simulate and select Send. Then open VS Code on the receiving PC and press BOOT.</p>
+<pre class="code log" id="log">Ready.</pre>
 </section>
-<p class="footer muted">Smart modes predict editor behavior; they cannot read your cursor position. Auto-closing quotes/brackets and auto-formatting can still interfere. When a line requires removing existing automatic indentation, this website blocks Smart sending rather than risk damaging code. That case needs editor configuration or future firmware support for Backspace.</p>
-</main>
+<section class="card wide"><h2>5. Real-world test checklist</h2><ol><li><strong>Back up</strong> your current firmware and GitHub Pages website. Upload the new firmware first.</li><li>Connect <strong>Windows first</strong> as the BLE keyboard, then connect Android through this website.</li><li>Open a <strong>blank Python file</strong> in VS Code and click inside it. Use the recommended editor settings in README.</li><li>Send the sample in <strong>Smart Python</strong> mode. Wait for <strong>READY:P</strong>, then press BOOT.</li><li>Compare actual VS Code text with original. If different, report the first mismatching line and keep the baseline 40/40 ms firmware timing.</li></ol><p class="minor">The site verifies instruction bytes with CRC32 and simulates editor behaviour. It cannot verify that Windows inserted every keystroke. Test on your own devices only.</p></section>
+</div></main>
 <script>
 'use strict';
 const SERVICE_UUID='76a80001-8c7b-4c6b-9211-57a2b1d00001';
 const WRITE_UUID='76a80002-8c7b-4c6b-9211-57a2b1d00001';
 const STATUS_UUID='76a80003-8c7b-4c6b-9211-57a2b1d00001';
-const MAX_BYTES=6000, CHUNK_BYTES=19;
-const encoder=new TextEncoder(), decoder=new TextDecoder();
+const MAX_BYTES=6000,CHUNK_BYTES=19;
+const encoder=new TextEncoder(),decoder=new TextDecoder();
 const $=id=>document.getElementById(id);
-let device=null, characteristic=null, statusCharacteristic=null, busy=false;
-const log=s=>{$('log').textContent+='\n'+s;$('log').scrollTop=$('log').scrollHeight;};
-const normalize=s=>s.replace(/\r\n?/g,'\n');
-const leadingSpaces=s=>(s.match(/^ */)||[''])[0].length;
-function checkASCII(text){
-  for(let i=0;i<text.length;i++){
-    const c=text.charCodeAt(i);
-    if(!((c>=32&&c<=126)||c===9||c===10))throw Error('Unsupported character at position '+(i+1)+'. ASCII only (plus Tab and Enter).');
-  }
-}
-function buildPlan(original,mode,indent){
-  const source=normalize(original), warnings=[], blockers=[];
-  checkASCII(source);
-  if(!source.length)return {source,transmit:'',warnings,blockers,lines:0};
-  if(mode==='normal')return {source,transmit:source,warnings,blockers,lines:source.split('\n').length};
-  const lines=source.split('\n');
-  if(lines.some(line=>/^\s*\t/.test(line))){
-    blockers.push('Leading Tab characters detected. Convert leading tabs to spaces first, or use Normal mode.');
-  }
-  const output=[];
-  for(let i=0;i<lines.length;i++){
-    const line=lines[i],desired=leadingSpaces(line);
-    if(i===0){output.push(line);continue;}
-    const prev=lines[i-1], prevTrim=prev.trimEnd(), currTrim=line.trimStart();
-    let predicted=leadingSpaces(prev);
-    if(mode==='python' && /:\s*$/.test(prevTrim))predicted+=indent;
-    if(mode==='braces'){
-      if(/[\{\[\(]\s*$/.test(prevTrim))predicted+=indent;
-      if(/^[}\])]/.test(currTrim)){
-        predicted=Math.max(0,predicted-indent);
-        warnings.push('Line '+(i+1)+': assumes the editor dedents when typing a closing bracket.');
-      }
+const TEST=`class Solution:
+    def example(self, n):
+        if n > 10:
+            print("Large")
+        else:
+            print("Small")
+
+        while n > 0:
+            n -= 1
+
+        return n`;
+let device=null,characteristic=null,statusCharacteristic=null,busy=false,last=null;
+function norm(s){return s.replace(/\r\n?/g,'\n')}
+function assertAscii(s){for(let i=0;i<s.length;i++){const v=s.charCodeAt(i);if(!(v>=32&&v<=126||v===10||v===9))throw Error('Only ASCII text, tabs and newlines supported (character '+(i+1)+').');}}
+function encodePlan(s){
+  const lines=norm(s).split('\n');
+  let out='';
+  lines.forEach((line,i)=>{
+    if(i)out+='~N~H~X~D';
+    for(const ch of line){
+      if(ch==='~')out+='~~';
+      else if(ch==='\t')out+='~T';
+      else out+=ch;
     }
-    if(!line.trim()){
-      if(i<lines.length-1) warnings.push('Line '+(i+1)+': blank-line indentation behavior varies between editors.');
-      output.push('');
-      continue;
-    }
-    if(predicted>desired){
-      blockers.push('Line '+(i+1)+': editor is expected to insert '+predicted+' spaces but this line needs '+desired+'. A Backspace/dedent key is required.');
-      output.push(line.slice(desired));
-    }else{
-      output.push(line.slice(predicted));
-    }
+  });
+  return out;
+}
+function decodePlan(encoded){
+  const ops=[];
+  for(let i=0;i<encoded.length;i++){
+    if(encoded[i]!=='~'){ops.push({op:'TEXT',c:encoded[i]});continue;}
+    const e=encoded[++i];
+    const names={'~':'TEXT','N':'ENTER','H':'HOME','X':'SHIFT_END','D':'DELETE','B':'BACKSPACE','T':'TAB','F':'END'};
+    if(!names[e])throw Error('Invalid escape sequence at '+i);
+    ops.push({op:names[e],c:e==='~'?'~':null});
   }
-  return {source,transmit:output.join('\n'),warnings:[...new Set(warnings)],blockers,lines:lines.length};
+  return ops;
 }
-function safePlan(){
-  try{return buildPlan($('message').value,$('mode').value,Number($('indentSize').value));}
-  catch(e){return {error:e.message,source:normalize($('message').value),transmit:'',warnings:[],blockers:[],lines:0};}
+function normalOps(src){const ops=[];for(const c of src)ops.push(c==='\n'?{op:'ENTER'}:c==='\t'?{op:'TAB'}:{op:'TEXT',c});return ops;}
+function crc32(a){let c=0xffffffff;for(const b of a){c^=b;for(let i=0;i<8;i++)c=(c>>>1)^((c&1)?0xedb88320:0);}return(c^0xffffffff)>>>0;}
+function hexCRC(a){return crc32(a).toString(16).toUpperCase().padStart(8,'0')}
+function leading(s){return (s.match(/^[ \t]*/)||[''])[0]}
+class VirtualEditor {
+  constructor(profile='python',size=4){this.lines=[''];this.row=0;this.col=0;this.selection=null;this.profile=profile;this.size=size;}
+  get value(){return this.lines.join('\n')}
+  replace(s){const line=this.lines[this.row];let a=this.col,b=this.col;
+    if(this.selection!==null){a=Math.min(this.selection,this.col);b=Math.max(this.selection,this.col)}
+    this.lines[this.row]=line.slice(0,a)+s+line.slice(b);this.col=a+s.length;this.selection=null;
+  }
+  enter(){const line=this.lines[this.row];const before=line.slice(0,this.col),after=line.slice(this.col);
+    const pad=this.profile==='none'?'':leading(before)+(this.profile==='python'&&/:\s*(?:#.*)?$/.test(before.trimEnd())?' '.repeat(this.size):'');
+    this.lines[this.row]=before;
+    this.lines.splice(this.row+1,0,pad+after);this.row++;this.col=pad.length;this.selection=null;
+  }
+  home(){this.col=0;this.selection=null;}
+  end(){this.col=this.lines[this.row].length;this.selection=null;}
+  shiftEnd(){this.selection=this.col;this.col=this.lines[this.row].length;}
+  del(){const line=this.lines[this.row];if(this.selection!==null&&this.selection!==this.col){this.replace('');return;}
+    this.selection=null;
+    if(this.col<line.length){this.lines[this.row]=line.slice(0,this.col)+line.slice(this.col+1)}
+    else if(this.row+1<this.lines.length){this.lines[this.row]+=this.lines[this.row+1];this.lines.splice(this.row+1,1)}
+  }
+  backspace(){const line=this.lines[this.row];if(this.selection!==null&&this.selection!==this.col){this.replace('');return;}this.selection=null;
+    if(this.col>0){this.lines[this.row]=line.slice(0,this.col-1)+line.slice(this.col);this.col--;}
+    else if(this.row){const p=this.lines[this.row-1];this.lines[this.row-1]+=line;this.lines.splice(this.row,1);this.row--;this.col=p.length;}
+  }
+  run(ops){for(const o of ops){switch(o.op){case 'TEXT':this.replace(o.c);break;case 'TAB':this.replace('\t');break;
+    case 'ENTER':this.enter();break;case 'HOME':this.home();break;case 'END':this.end();break;
+    case 'SHIFT_END':this.shiftEnd();break;case 'DELETE':this.del();break;case 'BACKSPACE':this.backspace();break;
+    default:throw Error('Unsupported simulated instruction '+o.op);
+  }}return this.value}
 }
-function pretty(s){return s.replace(/ /g,'·').replace(/\t/g,'→');}
-function status(s,error=false){$('transferStatus').textContent=s;$('transferStatus').className='small'+(error?' error':'');}
-function progress(p){$('progress').style.width=p+'%';$('progressTrack').setAttribute('aria-valuenow',String(p));}
+function mismatch(expected,actual){if(expected===actual)return null;let i=0;while(i<expected.length&&i<actual.length&&expected[i]===actual[i])i++;
+  const prefix=expected.slice(0,i);return {line:prefix.split('\n').length,column:prefix.length-prefix.lastIndexOf('\n'),expected:JSON.stringify(expected[i]??'[EOF]'),actual:JSON.stringify(actual[i]??'[EOF]')};}
+function compareLines(a,b){const x=a.split('\n'),y=b.split('\n');let n=0;for(let i=0;i<Math.max(x.length,y.length);i++)if(x[i]!==y[i])n++;return n;}
+function build(src,mode,profile,size){const source=norm(src);if(!source.trim())throw Error('Paste some Python code.');assertAscii(source);
+  if(source.includes('\t')&&mode==='smart')throw Error('Smart Python v1 requires spaces for indentation. Convert tabs to spaces before sending.');
+  const transmitted=mode==='smart'?encodePlan(source):source;
+  const bytes=encoder.encode(transmitted);
+  if(bytes.length>MAX_BYTES)throw Error('Encoded transfer is '+bytes.length+' bytes; maximum '+MAX_BYTES+'. Use a shorter test.');
+  const ops=mode==='smart'?decodePlan(transmitted):normalOps(source);
+  const naive=new VirtualEditor(profile,size).run(normalOps(source));
+  const simulated=new VirtualEditor(profile,size).run(ops);
+  return {source,transmitted,bytes,ops,naive,simulated,match:simulated===source,
+    diff:mismatch(source,simulated),naiveDiff:compareLines(source,naive)};
+}
+function planText(ops){let out=[],buf='';function flush(){if(buf){out.push('TYPE '+JSON.stringify(buf));buf=''}}
+  for(const o of ops){if(o.op==='TEXT'){buf+=o.c;}else{flush();out.push(o.op)}}flush();return out.join('\n');}
+function setStatus(text,bad=false){$('transferMessage').textContent=text;$('transferMessage').className='status'+(bad?' bad':'');}
+function log(text){$('log').textContent+='\n'+text;$('log').scrollTop=$('log').scrollHeight;}
+function bar(p){$('bar').style.width=p+'%'}
+function connected(){return !!(device?.gatt?.connected&&characteristic)}
 function refresh(){
-  const connected=!!(device?.gatt?.connected&&characteristic), p=safePlan();
-  $('connectionStatus').textContent=connected?'Connected':'Disconnected';
-  $('connectionStatus').className='pill'+(connected?' good':'');
-  $('connectBtn').disabled=busy||connected;
-  $('disconnectBtn').disabled=busy||!device?.gatt?.connected;
-  $('message').disabled=busy;
-  $('pasteBtn').disabled=busy;$('clearBtn').disabled=busy;
-  $('mode').disabled=busy;$('indentSize').disabled=busy;
-  const originalBytes=encoder.encode(p.source||'').length;
-  const transmitBytes=encoder.encode(p.transmit||'').length;
-  $('originalCount').textContent=originalBytes+' / '+MAX_BYTES+' bytes original';
-  $('sendCount').textContent=transmitBytes+' / '+MAX_BYTES+' bytes to send';
-  $('lineCount').textContent=(p.lines||0)+' lines';
-  const mode=$('mode').value;
-  $('modeBadge').textContent=mode==='normal'?'Normal':'Smart Code';
-  $('modeExplainer').textContent={
-    normal:'Normal sends every original character. Use when the destination editor has auto-indentation disabled.',
-    inherit:'Assumes Enter automatically copies the previous line’s leading spaces. This is a prediction, not a measurement.',
-    python:'Assumes the editor copies indentation and adds one level after a line ending with :. Best for Python editors using this behavior.',
-    braces:'Assumes indentation increases after an opening bracket and closing brackets are auto-dedented. Editor-dependent; test carefully.'
-  }[mode];
-  $('indentSize').disabled=busy||!['python','braces'].includes(mode);
-  $('preview').textContent=transmitBytes?pretty(p.transmit):'Paste text to preview…';
-  let feedback='',cls='note';
-  if(p.error){feedback=p.error;cls+=' problem';}
-  else if(p.blockers.length){feedback='Cannot safely use Smart Mode:\n'+p.blockers.slice(0,5).join('\n')+(p.blockers.length>5?'\n…and '+(p.blockers.length-5)+' more lines.':'')+'\nSwitch to Normal or disable auto-indent in the editor.';cls+=' problem';}
-  else if(originalBytes>MAX_BYTES || transmitBytes>MAX_BYTES){feedback='Exceeds ESP32 buffer capacity of 6,000 bytes.';cls+=' problem';}
-  else if(p.warnings.length){feedback='Best-effort mode — verify your target editor behavior.\n'+p.warnings.slice(0,3).join('\n');cls+=' warning';}
-  else if(mode!=='normal'&&transmitBytes){feedback='Smart plan ready. Confirm the chosen editor profile before typing long code.';}
-  else{feedback='Normal mode ready. No formatting compensation applied.';}
-  $('analysis').textContent=feedback;$('analysis').className=cls;
-  $('sendBtn').disabled=busy||!connected||!transmitBytes||!!p.error||p.blockers.length>0||originalBytes>MAX_BYTES||transmitBytes>MAX_BYTES;
+  $('count').textContent=encoder.encode(norm($('source').value)).length+' bytes original';
+  $('connect').disabled=busy||connected();$('disconnect').disabled=busy||!connected();
+  $('send').disabled=busy||!connected()||!last||(last.mode==='smart'&&!last.match)||last.source!==norm($('source').value)||last.mode!==$('mode').value||last.profile!==$('profile').value||last.size!==Number($('indent').value);
+  $('connected').textContent=connected()?'BLE connected':'Not connected';
+  $('encodedCount').textContent=(last?last.bytes.length:0)+' / 6000 encoded bytes';
 }
-function disconnected(){characteristic=null;statusCharacteristic=null;status('ESP32 disconnected.',true);log('Disconnected.');refresh();}
-$('connectBtn').onclick=async()=>{
-  if(!navigator.bluetooth){status('Web Bluetooth unavailable. Use Android Chrome or Windows Chrome/Edge over HTTPS.',true);return;}
-  busy=true;refresh();
-  try{
-    status('Select ESP32 TextBridge in the Bluetooth picker...');
-    if(device?.gatt?.connected)device.gatt.disconnect();
+function simulate(){try{
+  const mode=$('mode').value,profile=$('profile').value,size=Number($('indent').value);
+  const r=build($('source').value,mode,profile,size);last={...r,mode,profile,size};
+  $('originalView').textContent=r.source;$('outputView').textContent=r.simulated;
+  $('naiveResult').textContent=r.naiveDiff+' changed lines';$('naiveResult').className=r.naiveDiff?'bad':'good';
+  $('smartResult').textContent=r.match?'Exact model match':'Mismatch';$('smartResult').className=r.match?'good':'bad';
+  $('planResult').textContent=r.ops.length+' keystrokes';$('planView').textContent=planText(r.ops);
+  $('comparison').textContent=r.match?'Exact match in this VIRTUAL model only. Real VS Code still needs testing.':
+     'First mismatch: line '+r.diff.line+', column '+r.diff.column+' (expected '+r.diff.expected+'; got '+r.diff.actual+').';
+  $('simMessage').textContent=r.match?'Simulation matches source in this model. Ready for a real editor test.':mode==='normal'?'Normal mode may not match an auto-indenting editor. You may still send it to a plain-text editor.':'Smart simulation mismatch. Smart transmission is blocked.';
+  $('simMessage').className='status gap '+(r.match?'good':'bad');
+  $('copyPlan').disabled=false;
+}catch(e){last=null;$('smartResult').textContent='Not ready';$('simMessage').textContent=e.message;$('simMessage').className='status gap bad';$('copyPlan').disabled=true;}
+  refresh();
+}
+async function bleWrite(bytes){if(!connected())throw Error('Not connected');
+  if(characteristic.writeValueWithResponse)await characteristic.writeValueWithResponse(bytes);
+  else await characteristic.writeValue(bytes);
+}
+async function readStatus(){if(!statusCharacteristic)return null;
+  const dv=await statusCharacteristic.readValue();return decoder.decode(dv).replace(/\0/g,'').trim();}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function waitFor(expectedType,expectedLength,timeoutMs=5500){if(!statusCharacteristic)return 'UNVERIFIED';const start=Date.now();
+  while(Date.now()-start<timeoutMs){let s=await readStatus();if(s.startsWith('ERR:'))throw Error('ESP32 reported '+s);
+    if(s.startsWith(expectedType)){const amount=Number(s.slice(expectedType.length));if(amount!==expectedLength)throw Error('Received '+amount+' instead of '+expectedLength+' bytes');return s;}
+    await sleep(65);
+  }throw Error('Timed out waiting for '+expectedType+' status');
+}
+function disconnected(){characteristic=null;statusCharacteristic=null;setStatus('Bluetooth disconnected.',true);refresh();}
+$('connect').onclick=async()=>{if(!navigator.bluetooth){setStatus('Web Bluetooth requires HTTPS and Android Chrome or desktop Chrome/Edge.',true);return;}
+  busy=true;refresh();try{setStatus('Choose ESP32 TextBridge from the picker...');
     device=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:[SERVICE_UUID]});
     device.addEventListener('gattserverdisconnected',disconnected);
-    status('Connecting...');
-    const server=await device.gatt.connect();
-    const service=await server.getPrimaryService(SERVICE_UUID);
-    characteristic=await service.getCharacteristic(WRITE_UUID);
-    try{statusCharacteristic=await service.getCharacteristic(STATUS_UUID);}catch(e){statusCharacteristic=null;}
-    status('Connected. Paste code, select mode, then Send.');
-    log('Connected to '+(device.name||'ESP32')+'.');
-  }catch(e){status('Connection failed: '+e.message,true);log('Connection error: '+e.message);}
-  finally{busy=false;refresh();}
-};
-$('disconnectBtn').onclick=()=>{if(device?.gatt?.connected)device.gatt.disconnect();};
-$('message').addEventListener('input',refresh);
-$('mode').addEventListener('change',refresh);
-$('indentSize').addEventListener('change',refresh);
-$('clearBtn').onclick=()=>{$('message').value='';progress(0);refresh();};
-$('pasteBtn').onclick=async()=>{
-  try{$('message').value=await navigator.clipboard.readText();refresh();status('Clipboard pasted.');}
-  catch(e){status('Clipboard access blocked. Long-press the text field and use Paste.',true);}
-};
-async function write(b){
-  if(!device?.gatt?.connected||!characteristic)throw Error('Bluetooth disconnected.');
-  if(characteristic.writeValueWithResponse)await characteristic.writeValueWithResponse(b);
-  else await characteristic.writeValue(b);
-}
-async function waitForReady(expected){
-  if(!statusCharacteristic)return null;
-  for(let i=0;i<12;i++){
-    const data=await statusCharacteristic.readValue();
-    const s=decoder.decode(data).replace(/\0/g,'').trim();
-    if(s.startsWith('ERR:'))throw Error('ESP32 reports '+s);
-    if(s.startsWith('READY:')){
-      const count=Number(s.slice(6));
-      if(count!==expected)throw Error('ESP32 accepted '+count+' of '+expected+' expected bytes. Do not type; resend.');
-      return s;
-    }
-    await new Promise(r=>setTimeout(r,100));
+    const s=await device.gatt.connect();const srv=await s.getPrimaryService(SERVICE_UUID);
+    characteristic=await srv.getCharacteristic(WRITE_UUID);
+    try{statusCharacteristic=await srv.getCharacteristic(STATUS_UUID)}catch(e){statusCharacteristic=null;}
+    setStatus('Bluetooth connected. Run simulation, then Send.');log('Connected to '+(device.name||'ESP32'));
+  }catch(e){setStatus('Bluetooth connection failed: '+e.message,true);log(e.message)}finally{busy=false;refresh();}};
+$('disconnect').onclick=()=>{if(device?.gatt?.connected)device.gatt.disconnect()};
+$('send').onclick=async()=>{
+  if(busy||!last||(last.mode==='smart'&&!last.match))return;
+  const r=last;
+  if(r.source!==norm($('source').value)||r.mode!==$('mode').value||r.profile!==$('profile').value||r.size!==Number($('indent').value)){
+    setStatus('Source or settings changed; rerun simulation.',true);return;
   }
-  return 'No READY acknowledgement before timeout';
-}
-$('sendBtn').onclick=async()=>{
-  if(busy)return;
-  const plan=safePlan();
-  if(plan.error||plan.blockers.length){status('Fix the Smart Code warnings before sending.',true);return;}
-  const bytes=encoder.encode(plan.transmit);
-  if(!bytes.length||bytes.length>MAX_BYTES){status('Input must be 1–6,000 ASCII bytes.',true);return;}
-  busy=true;progress(0);refresh();
-  try{
-    status('Starting transfer...');
-    await write(encoder.encode('C'));
-    const total=Math.ceil(bytes.length/CHUNK_BYTES);
-    for(let offset=0,i=0;offset<bytes.length;offset+=CHUNK_BYTES,i++){
-      const chunk=bytes.slice(offset,offset+CHUNK_BYTES);
-      const packet=new Uint8Array(1+chunk.length);
-      packet[0]=65;packet.set(chunk,1);
-      await write(packet);
-      const sent=Math.min(offset+chunk.length,bytes.length);
-      progress(Math.floor((i+1)*95/total));
-      status('Sending '+sent+' / '+bytes.length+' bytes ('+(i+1)+'/'+total+' packets)');
+  busy=true;bar(0);refresh();try{
+    const header=r.mode==='smart'?`P${r.bytes.length},${hexCRC(r.bytes)}`:'C';
+    setStatus('Starting '+r.mode+' transfer...');await bleWrite(encoder.encode(header));
+    const cmd=r.mode==='smart'?66:65; // B or A
+    const total=Math.ceil(r.bytes.length/CHUNK_BYTES);
+    for(let i=0;i<total;i++){
+      const chunk=r.bytes.slice(i*CHUNK_BYTES,(i+1)*CHUNK_BYTES),packet=new Uint8Array(chunk.length+1);
+      packet[0]=cmd;packet.set(chunk,1);await bleWrite(packet);
+      if((i+1)%8===0 && statusCharacteristic){
+        const expected=Math.min((i+1)*CHUNK_BYTES,r.bytes.length);
+        await waitFor('RX:',expected);
+      }
+      bar(Math.floor(95*(i+1)/total));
+      setStatus('Transferring '+Math.min((i+1)*CHUNK_BYTES,r.bytes.length)+' / '+r.bytes.length+' bytes');
     }
-    await write(encoder.encode('E'));
-    const acknowledgement=await waitForReady(bytes.length);
-    progress(100);
-    const checked=acknowledgement&&acknowledgement.startsWith('READY:');
-    status(checked?'ESP32 confirmed '+bytes.length+' bytes. Press BOOT to type.':'BLE transfer completed. Press BOOT to type; no firmware receipt available.');
-    log('Sent '+bytes.length+' bytes in '+total+' packets ('+$('mode').selectedOptions[0].text+').'+(acknowledgement?' Status: '+acknowledgement:''));
-  }catch(e){status('Transfer issue: '+e.message,true);log('Transfer error: '+e.message);}
-  finally{busy=false;refresh();}
+    if(statusCharacteristic)await waitFor('RX:',r.bytes.length);
+    await bleWrite(encoder.encode('E'));
+    const prefix=r.mode==='smart'?'READY:P:':'READY:';
+    const receipt=await waitFor(prefix,r.bytes.length);
+    bar(100);setStatus(receipt==='UNVERIFIED'?'BLE writes sent. No status validation available; test cautiously.':
+       'ESP32 validated '+r.bytes.length+' '+r.mode+' bytes. Open VS Code and press BOOT.');
+    log('Sent '+r.bytes.length+' bytes using '+total+' packets; receipt='+receipt);
+  }catch(e){setStatus('Transfer failed: '+e.message,true);log('Transfer failure: '+e.message)}finally{busy=false;refresh();}
 };
-refresh();
-</script>
-</body>
-</html>
+$('simulate').onclick=simulate;
+$('sample').onclick=()=>{$('source').value=TEST;simulate()};
+$('paste').onclick=async()=>{try{$('source').value=await navigator.clipboard.readText();simulate()}catch(e){setStatus('Clipboard permission denied; paste manually into the text area.',true)}};
+$('copyPlan').onclick=async()=>{if(last)try{await navigator.clipboard.writeText(planText(last.ops));setStatus('Instruction plan copied')}catch(e){setStatus('Clipboard permission denied.',true)}};
+for(const id of ['source','mode','profile','indent'])$(id).addEventListener('input',()=>{last=null;refresh()});
+$('source').addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();const t=$('source'),a=t.selectionStart,b=t.selectionEnd;
+  t.setRangeText('    ',a,b,'end');last=null;refresh();}});
+$('source').value=TEST;simulate();
+</script></body></html>
