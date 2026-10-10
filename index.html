@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111827">
+<title>ESP32 Text Bridge</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#151e30;--border:#344258;--text:#f3f6ff;--muted:#b6c2d4;--blue:#60a5fa;--green:#86efac}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px system-ui,-apple-system,Segoe UI,sans-serif}.wrap{max-width:760px;margin:32px auto;padding:0 18px}h1{margin:0 0 4px;font-size:1.8rem}p{color:var(--muted);line-height:1.5}.panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;margin:18px 0}button{border:0;border-radius:9px;padding:12px 17px;font:inherit;font-weight:600;cursor:pointer;background:#2563eb;color:white}button:disabled{opacity:.45;cursor:not-allowed}button.secondary{background:#334155}button.danger{background:#9f3030}.actions{display:flex;gap:10px;flex-wrap:wrap}textarea{width:100%;min-height:250px;resize:vertical;background:#0a1220;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:13px;font:14px/1.5 Consolas,Monaco,monospace;tab-size:4}textarea:focus{outline:2px solid var(--blue)}.heading{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}.status{color:var(--muted);font-size:.95rem}.good{color:var(--green)}.error{color:#fca5a5}.small{font-size:.88rem}.meter{height:12px;background:#334155;border-radius:20px;overflow:hidden;margin:12px 0}.meter>div{height:100%;background:#60a5fa;width:0%;transition:width .12s}#log{white-space:pre-wrap;overflow-wrap:anywhere;background:#0a1220;padding:13px;border-radius:9px;min-height:60px;color:#cbd5e1;font:13px/1.6 Consolas,monospace}.pill{display:inline-block;padding:5px 9px;border-radius:18px;background:#334155;font-size:.85rem}.footer{margin-bottom:36px}
+</style>
+</head>
+<body><main class="wrap">
+<h1>ESP32 Text Bridge</h1><p>Send copied text over Bluetooth to your ESP32. Press the ESP32 <strong>BOOT</strong> button to type it on your main PC.</p>
+<section class="panel">
+  <div class="heading"><h2>1. Bluetooth connection</h2><span id="connectionStatus" class="pill">Disconnected</span></div>
+  <div class="actions"><button id="connectBtn">Connect ESP32</button><button id="disconnectBtn" class="secondary" disabled>Disconnect</button></div>
+  <p class="small">Use Chrome on Android or Chrome/Edge on Windows. The page must be hosted on HTTPS (GitHub Pages works). Keep the main PC paired as a keyboard.</p>
+</section>
+<section class="panel">
+  <div class="heading"><h2>2. Text to transmit</h2><span id="count" class="status">0 / 6000 bytes</span></div>
+  <textarea id="message" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="Paste your code or text here..."></textarea>
+  <div class="actions" style="margin-top:12px"><button id="pasteBtn" class="secondary">Paste clipboard</button><button id="clearBtn" class="secondary">Clear text</button><button id="sendBtn" disabled>Send to ESP32</button></div>
+  <div class="meter" role="progressbar" aria-label="Transfer progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack"><div id="progress"></div></div>
+  <div class="status" id="transferStatus" aria-live="polite">Waiting for connection</div>
+</section>
+<section class="panel"><h2>3. Transfer log</h2><div id="log" role="log" aria-live="polite">Ready.</div><p class="small">The ESP32 firmware accepts printable ASCII, tabs and line breaks. Non-ASCII characters (including emojis and smart quotes) are rejected to prevent altered output. Line endings are normalized to LF.</p></section>
+<p class="footer small">Protocol: C (clear), A + up to 19 text bytes (append), E (finish). Each BLE write is acknowledged at the GATT transport level; this firmware does not yet return an application-level checksum/receipt. Only send text to devices you control.</p>
+</main>
+<script>
+'use strict';
+const SERVICE_UUID = '76a80001-8c7b-4c6b-9211-57a2b1d00001';
+const WRITE_UUID = '76a80002-8c7b-4c6b-9211-57a2b1d00001';
+const MAX_BYTES = 6000;
+const CHUNK_BYTES = 19;
+const encoder = new TextEncoder();
+const $ = id => document.getElementById(id);
+let device = null, characteristic = null, busy = false;
+const log = s => { $('log').textContent += '\n' + s; $('log').scrollTop = $('log').scrollHeight; };
+function normalize(s){return s.replace(/\r\n?/g,'\n');}
+function validate(s){
+  const text = normalize(s);
+  const bytes = encoder.encode(text);
+  if (!bytes.length) throw new Error('Paste some text first.');
+  if (bytes.length > MAX_BYTES) throw new Error('Text exceeds 6000 bytes.');
+  for (let i=0;i<text.length;i++){
+    const c=text.charCodeAt(i);
+    if (!((c>=32 && c<=126)||c===10||c===9)) throw new Error('Unsupported character at position '+(i+1)+'. Only ASCII, tabs, and newlines are supported.');
+  }
+  return bytes;
+}
+function refresh(){
+  const active=!!(device?.gatt?.connected && characteristic);
+  $('connectionStatus').textContent=active?'Connected':'Disconnected';
+  $('connectionStatus').className='pill'+(active?' good':'');
+  $('connectBtn').disabled=busy||active;
+  $('disconnectBtn').disabled=busy||!device?.gatt?.connected;
+  $('sendBtn').disabled=busy||!active;
+  $('message').disabled=busy;
+  $('clearBtn').disabled=busy;
+  $('pasteBtn').disabled=busy;
+  $('count').textContent=encoder.encode(normalize($('message').value)).length+' / '+MAX_BYTES+' bytes';
+}
+function status(s,isError=false){ $('transferStatus').textContent=s; $('transferStatus').className='status'+(isError?' error':''); }
+function progress(p){$('progress').style.width=p+'%';$('progressTrack').setAttribute('aria-valuenow',String(p));}
+function disconnected(){characteristic=null;status('ESP32 disconnected.',true);log('Disconnected.');refresh();}
+$('connectBtn').onclick=async()=>{
+  if(!navigator.bluetooth){status('Web Bluetooth unavailable. Use Android Chrome or desktop Chrome/Edge via HTTPS.',true);return;}
+  busy=true;refresh();
+  try{
+    status('Select ESP32 TextBridge in the Bluetooth picker...');
+    device=await navigator.bluetooth.requestDevice({filters:[{services:[SERVICE_UUID]}],optionalServices:[SERVICE_UUID]});
+    device.addEventListener('gattserverdisconnected',disconnected);
+    status('Connecting...');
+    const server=await device.gatt.connect();
+    const service=await server.getPrimaryService(SERVICE_UUID);
+    characteristic=await service.getCharacteristic(WRITE_UUID);
+    status('Connected. Paste text, then tap Send.');
+    log('Connected to '+(device.name||'ESP32')+'.');
+  }catch(e){ status('Connection failed: '+e.message,true);log('Connection error: '+e.message); }
+  finally{busy=false;refresh();}
+};
+$('disconnectBtn').onclick=()=>{if(device?.gatt?.connected)device.gatt.disconnect();};
+$('message').addEventListener('input',refresh);
+$('clearBtn').onclick=()=>{$('message').value='';progress(0);refresh();};
+$('pasteBtn').onclick=async()=>{
+  try{$('message').value=await navigator.clipboard.readText();refresh();status('Clipboard pasted.');}
+  catch(e){status('Clipboard access was blocked. Long-press the text field and choose Paste.',true);}
+};
+async function write(b){
+  if(!device?.gatt?.connected || !characteristic) throw new Error('Bluetooth disconnected.');
+  if(characteristic.writeValueWithResponse)await characteristic.writeValueWithResponse(b);
+  else await characteristic.writeValue(b);
+}
+$('sendBtn').onclick=async()=>{
+  if(busy)return;
+  let bytes;
+  try{bytes=validate($('message').value);}catch(e){status(e.message,true);return;}
+  busy=true;progress(0);refresh();
+  try{
+    status('Starting transfer...');
+    await write(encoder.encode('C'));
+    const total=Math.ceil(bytes.length/CHUNK_BYTES);
+    for(let offset=0,index=0;offset<bytes.length;offset+=CHUNK_BYTES,index++){
+      const chunk=bytes.slice(offset,offset+CHUNK_BYTES);
+      const packet=new Uint8Array(1+chunk.length);
+      packet[0]=65;
+      packet.set(chunk,1);
+      await write(packet);
+      const pct=Math.floor(((index+1)/total)*95);
+      progress(pct);
+      status('Sending '+Math.min(offset+chunk.length,bytes.length)+' / '+bytes.length+' bytes ('+(index+1)+'/'+total+' chunks)');
+    }
+    await write(encoder.encode('E'));
+    progress(100);
+    status('Transfer completed. Press BOOT on the ESP32 to type.');
+    log('Sent '+bytes.length+' bytes in '+total+' chunks.');
+  }catch(e){status('Transfer interrupted: '+e.message+'. Resend the entire text.',true);log('Transfer error: '+e.message);}
+  finally{busy=false;refresh();}
+};
+refresh();
+</script>
+</body></html>
