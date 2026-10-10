@@ -68,7 +68,7 @@ $('connectBtn').onclick=async()=>{
   busy=true;refresh();
   try{
     status('Select ESP32 TextBridge in the Bluetooth picker...');
-    device=await navigator.bluetooth.requestDevice({filters:[{services:[SERVICE_UUID]}],optionalServices:[SERVICE_UUID]});
+    device=await navigator.bluetooth.requestDevice({acceptAllDevices: true,optionalServices: [SERVICE_UUID]});
     device.addEventListener('gattserverdisconnected',disconnected);
     status('Connecting...');
     const server=await device.gatt.connect();
