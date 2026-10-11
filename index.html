@@ -2,273 +2,187 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ESP32 Text Bridge</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f5f5f7">
+<meta name="description" content="A simple Bluetooth code bridge for your ESP32.">
+<title>TextBridge — Wireless code, simply.</title>
 <style>
-:root{
-  color-scheme: light;
-  --bg:#f5f5f7;
-  --bg2:#ffffff;
-  --panel:rgba(255,255,255,.72);
-  --panel-solid:#ffffff;
-  --border:rgba(15,23,42,.08);
-  --text:#1d1d1f;
-  --muted:#6e6e73;
-  --blue:#0071e3;
-  --blue-2:#2997ff;
-  --green:#1d8f4e;
-  --red:#d92d20;
-  --yellow:#a15c00;
-  --shadow:0 10px 30px rgba(0,0,0,.06), 0 2px 10px rgba(0,0,0,.04);
-  --radius:24px;
-  --radius-sm:16px;
-}
+:root{color-scheme:light;--bg:#f5f5f7;--surface:#fff;--text:#1d1d1f;--secondary:#6e6e73;--hairline:#e5e5ea;--blue:#0071e3;--blue-hover:#0077ed;--blue-soft:#eaf4ff;--green:#24875a;--red:#d12d39;--shadow:0 16px 50px rgba(0,0,0,.035),0 2px 9px rgba(0,0,0,.025)}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;
-  font:15px/1.55 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;
-  color:var(--text);
-  background:
-    radial-gradient(1200px 520px at 10% -10%, rgba(41,151,255,.18), transparent 50%),
-    radial-gradient(900px 420px at 100% 0%, rgba(0,113,227,.14), transparent 40%),
-    linear-gradient(180deg,#fbfbfd 0%, #f5f5f7 58%, #eef1f5 100%);
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif}
+button,select,textarea{font:inherit}
+button{touch-action:manipulation}
+button:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #9bcfff;outline-offset:3px}
+.shell{max-width:840px;padding:0 24px 72px;margin:auto}
+.topbar{height:82px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid rgba(0,0,0,.045)}
+.brand{display:flex;align-items:center;gap:10px;font-size:17px;letter-spacing:-.04em;font-weight:670}
+.brandmark{width:28px;height:28px;display:grid;place-items:center;border-radius:9px;background:#1d1d1f;color:white}
+.topright{display:flex;align-items:center;gap:10px}
+.link-btn{border:0;background:transparent;color:var(--blue);padding:8px 10px;border-radius:20px;font-weight:600;font-size:13px;cursor:pointer;transition:background .16s}
+.link-btn:hover{background:#eaf4ff}
+.link-btn:disabled{color:#97979d;cursor:default}
+.connection{display:flex;align-items:center;gap:7px;color:var(--secondary);font-size:12px;white-space:nowrap}
+.connection .led{width:7px;height:7px;background:#a5a5aa;border-radius:50%;transition:background .3s,box-shadow .3s}
+.connection.active .led{background:var(--green);box-shadow:0 0 0 4px rgba(36,135,90,.10)}
+.hero{padding:58px 0 34px;text-align:center;animation:up .55s cubic-bezier(.2,.8,.2,1) both}
+.hero h1{font-size:clamp(40px,6.5vw,64px);font-weight:690;letter-spacing:-.064em;line-height:1.07;margin:0 0 14px}
+.hero p{margin:0 auto;color:var(--secondary);font-size:clamp(15px,2vw,18px);max-width:420px;letter-spacing:-.015em}
+.app{background:var(--surface);border:1px solid rgba(0,0,0,.04);border-radius:24px;box-shadow:var(--shadow);overflow:hidden;animation:up .65s .07s cubic-bezier(.2,.8,.2,1) both}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 22px;border-bottom:1px solid #f0f0f2}
+.toolbar-label{font-weight:630;font-size:14px;letter-spacing:-.02em}
+.mode{display:flex;align-items:center;background:#f5f5f7;padding:4px;border-radius:12px;gap:2px}
+.mode button{border:0;background:transparent;color:var(--secondary);border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:620;cursor:pointer;transition:background .18s,box-shadow .18s,color .18s}
+.mode button[aria-pressed="true"]{background:white;color:var(--text);box-shadow:0 1px 5px rgba(0,0,0,.08)}
+#mode{display:none}
+.editor-wrap{padding:14px 22px 0}
+#source{width:100%;min-height:300px;height:min(44vh,440px);resize:vertical;border:0;outline:0;background:#fff;color:#262629;padding:8px 2px;font:13px/1.65 ui-monospace,"SFMono-Regular",Menlo,Monaco,Consolas,monospace;white-space:pre;tab-size:4;letter-spacing:0}
+#source::placeholder{color:#aaaab0}
+.editor-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 22px 16px;color:var(--secondary);font-size:12px;border-bottom:1px solid #f0f0f2}
+.text-actions{display:flex;align-items:center;gap:4px}
+.mini{border:0;color:var(--blue);background:transparent;border-radius:9px;padding:7px 10px;font-size:12.5px;font-weight:600;cursor:pointer}
+.mini:hover{background:var(--blue-soft)}
+.mini:disabled{color:#aaa}
+.cta-area{padding:20px 22px 22px;background:linear-gradient(180deg,#fff,#fcfcfd)}
+.validation{display:flex;align-items:center;gap:8px;min-height:24px;color:var(--secondary);font-size:13px;margin-bottom:13px}
+.validation .small-dot{width:7px;height:7px;background:#bbb;border-radius:50%;flex:none}
+.validation.isgood{color:var(--green)}.validation.isgood .small-dot{background:var(--green)}
+.validation.isbad{color:var(--red)}.validation.isbad .small-dot{background:var(--red)}
+.big-btn{width:100%;background:var(--blue);color:white;border:0;border-radius:14px;min-height:54px;display:flex;justify-content:center;align-items:center;gap:9px;font-size:16px;font-weight:630;cursor:pointer;transition:background .18s,transform .18s,box-shadow .18s;box-shadow:0 6px 16px rgba(0,113,227,.16)}
+.big-btn:hover{background:var(--blue-hover);box-shadow:0 9px 20px rgba(0,113,227,.19)}
+.big-btn:active{transform:scale(.994)}
+.big-btn:disabled{background:#b2c8df;cursor:not-allowed;box-shadow:none;transform:none}
+.big-btn svg{width:16px;height:16px}
+.transfer-progress{height:3px;background:#e8e8ed;overflow:hidden;border-radius:99px;margin:13px 0 0}
+.transfer-progress>div{height:100%;width:0%;background:var(--blue);transition:width .18s ease}
+#transferMessage{font-size:12px;color:var(--secondary);text-align:center;margin:10px auto 0;min-height:18px;max-width:520px;overflow-wrap:anywhere}
+#transferMessage.bad{color:var(--red)}
+.bottom-note{display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;color:var(--secondary);margin-top:20px;text-align:center}
+.bottom-note svg{flex:none}
+.advanced{margin:28px auto 0;max-width:792px}
+.advanced>summary{display:flex;justify-content:center;align-items:center;gap:5px;width:max-content;margin:auto;padding:10px 14px;border-radius:14px;cursor:pointer;list-style:none;color:#6e6e73;font-size:13px}
+.advanced>summary:hover{color:var(--blue);background:#ebebef}
+.advanced>summary::-webkit-details-marker{display:none}
+.advanced>summary svg{transition:transform .2s}
+.advanced[open]>summary svg{transform:rotate(180deg)}
+.advanced-content{margin-top:10px;background:#fff;border:1px solid var(--hairline);border-radius:20px;padding:20px;box-shadow:0 5px 22px rgba(0,0,0,.025)}
+.advanced-content h2{font-size:17px;letter-spacing:-.025em;margin:0 0 8px}
+.advanced-content p{margin:5px 0 16px;color:var(--secondary);font-size:13px}
+.advanced-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.advanced label{display:block;font-size:12px;font-weight:650;margin-bottom:6px}
+.advanced select{width:100%;background:#f5f5f7;border:1px solid var(--hairline);border-radius:10px;padding:12px;font-size:13px;color:var(--text)}
+.advanced details{margin-top:16px;border-top:1px solid var(--hairline);padding-top:14px}
+.advanced details summary{font-size:13px;font-weight:600;cursor:pointer;color:var(--blue)}
+.advanced .testtools{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+.outline{border:1px solid var(--hairline);background:#fff;color:var(--text);border-radius:10px;padding:9px 12px;font-weight:600;font-size:12px;cursor:pointer}
+.outline:hover{background:#f5f5f7}
+.outline:disabled{opacity:.4;cursor:not-allowed}
+.tech-status{font-size:12px;color:var(--secondary);margin-top:10px}
+.metrics{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}
+.metrics span{font-size:12px;padding:8px 10px;border-radius:12px;background:#f5f5f7}
+.technical pre{background:#f5f5f7;border-radius:10px;border:1px solid #eee;padding:12px;max-height:260px;overflow:auto;white-space:pre;tab-size:4;font:11px/1.6 ui-monospace,monospace}
+.technical .columns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.technical .columns label{display:block;margin:8px 0}
+.technical #comparison{font-size:12px;color:var(--secondary)}
+.technical #log{white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px}
+.good{color:var(--green)}.bad{color:var(--red)}
+#simMessage{margin-top:10px;font-size:12px;color:var(--secondary)}
+#simMessage.bad{color:var(--red)}
+@media(max-width:640px){
+ .shell{padding:0 12px 80px}
+ .topbar{height:64px;padding:0 4px}
+ .brand{font-size:16px}
+ .connection{font-size:11px}
+ .topright{gap:2px}
+ .topright .link-btn{font-size:12px;padding:9px}
+ .hero{padding:36px 0 27px}
+ .hero h1{font-size:clamp(38px,10vw,47px);margin-bottom:12px}
+ .hero p{font-size:15px;max-width:300px}
+ .app{border-radius:20px}
+ .toolbar{padding:15px 14px}
+ .mode button{font-size:11px;padding:8px 9px}
+ .editor-wrap{padding:8px 15px 0}
+ #source{min-height:230px;height:42vh;font-size:12px;line-height:1.7}
+ .editor-foot{padding:4px 14px 12px}
+ .cta-area{padding:16px 14px 16px}
+ .big-btn{min-height:52px}
+ .advanced-content{padding:16px}
+ .advanced-grid,.technical .columns{grid-template-columns:1fr}
 }
-.wrap{max-width:1180px;margin:0 auto;padding:24px 18px 80px}
-.hero{
-  position:relative;overflow:hidden;
-  background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(255,255,255,.7));
-  border:1px solid var(--border);
-  border-radius:32px;
-  box-shadow:var(--shadow);
-  padding:42px 34px 30px;
-  backdrop-filter:blur(18px);
-}
-.hero::before,.hero::after{
-  content:"";position:absolute;border-radius:999px;filter:blur(16px);pointer-events:none;
-}
-.hero::before{width:280px;height:280px;right:-80px;top:-80px;background:radial-gradient(circle,rgba(41,151,255,.22),transparent 65%);animation:float1 10s ease-in-out infinite}
-.hero::after{width:220px;height:220px;left:-70px;bottom:-90px;background:radial-gradient(circle,rgba(0,113,227,.16),transparent 65%);animation:float2 12s ease-in-out infinite}
-@keyframes float1{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
-@keyframes float2{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:700;margin-bottom:10px}
-h1{margin:0;font-size:clamp(32px,5vw,56px);line-height:1.05;letter-spacing:-.03em}
-.sub{max-width:760px;margin:14px 0 0;color:var(--muted);font-size:17px}
-.hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;margin-top:28px;align-items:start}
-.quick,
-.card{
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  backdrop-filter:blur(14px);
-}
-.quick{padding:18px}
-.quick-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.step-pill{background:rgba(255,255,255,.9);border:1px solid var(--border);border-radius:18px;padding:14px 12px;transition:transform .2s ease, box-shadow .2s ease}
-.step-pill:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.05)}
-.step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:999px;background:#eef5ff;color:var(--blue);font-weight:700;margin-bottom:10px}
-.step-title{font-weight:650;font-size:14px;margin-bottom:4px}
-.step-copy{font-size:12px;color:var(--muted);line-height:1.45}
-.hero-aside{padding:18px}
-.mini-title{font-weight:650;font-size:13px;margin-bottom:10px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.badge{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.86);border:1px solid var(--border);font-size:13px;color:var(--muted)}
-.dot{width:8px;height:8px;border-radius:999px;background:var(--blue)}
-.layout{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:18px}
-.card{padding:22px}
-.section-title{font-size:24px;line-height:1.15;letter-spacing:-.02em;margin:0 0 6px}
-.section-sub{margin:0 0 18px;color:var(--muted)}
-textarea,select{
-  width:100%;border-radius:18px;border:1px solid rgba(15,23,42,.10);background:rgba(255,255,255,.92);
-  color:var(--text);font:14px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  outline:none;transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;
-}
-textarea:focus,select:focus{border-color:rgba(0,113,227,.45);box-shadow:0 0 0 4px rgba(0,113,227,.12)}
-textarea{min-height:360px;padding:16px;resize:vertical;white-space:pre;tab-size:4}
-select{padding:13px 14px;font-family:inherit}
-label{display:block;margin:14px 0 8px;font-size:13px;font-weight:650;color:#3b3b3f}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.button{
-  border:none;border-radius:999px;padding:12px 18px;font:600 14px/1 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
-  cursor:pointer;transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease, background .18s ease;
-}
-.button:hover{transform:translateY(-1px)}
-.button:active{transform:translateY(0)}
-.button:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.button.primary{background:linear-gradient(180deg,var(--blue-2),var(--blue));color:#fff;box-shadow:0 10px 20px rgba(0,113,227,.22)}
-.button.secondary{background:#fff;color:var(--text);border:1px solid rgba(15,23,42,.10);box-shadow:0 4px 14px rgba(0,0,0,.05)}
-.meta{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:10px;color:var(--muted);font-size:13px}
-.stack{display:grid;gap:16px}
-.status{
-  margin-top:12px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.86);border:1px solid var(--border);
-  color:var(--text);white-space:pre-wrap
-}
-.good{color:var(--green)!important}.bad{color:var(--red)!important}.warn{color:var(--yellow)!important}
-.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:10px}
-.kpi{padding:16px;border-radius:20px;background:rgba(255,255,255,.88);border:1px solid var(--border)}
-.kpi .label{display:block;color:var(--muted);font-size:12px;margin-bottom:8px}.kpi strong{font-size:27px;letter-spacing:-.03em}
-.columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
-.code{
-  margin:0;min-height:220px;max-height:360px;overflow:auto;padding:14px 16px;border-radius:20px;
-  background:#f8f8fb;border:1px solid rgba(15,23,42,.08);font:13px/1.68 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre;tab-size:4;
-}
-.summary{margin-top:12px;color:var(--muted);font-size:13px}
-details{margin-top:14px;padding-top:4px} details summary{cursor:pointer;color:var(--blue);font-weight:600;list-style:none}
-details summary::-webkit-details-marker{display:none}
-.progress-wrap{margin-top:14px}
-.progress{height:10px;background:#e8edf4;border-radius:999px;overflow:hidden}.progress>div{width:0;height:100%;background:linear-gradient(90deg,var(--blue-2),var(--blue));transition:width .18s ease}
-.log{min-height:120px;max-height:220px;overflow:auto;word-break:break-word}
-.footer-card{margin-top:16px}
-.help-list{margin:0;padding-left:18px;color:var(--muted)}
-.help-list li{margin:8px 0}
-.small{font-size:12px;color:var(--muted)}
-.spacer{height:4px}
-@media (max-width:980px){
-  .hero-grid,.layout,.columns{grid-template-columns:1fr}
-  .quick-steps{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media (max-width:720px){
-  .wrap{padding:14px 12px 56px}
-  .hero{padding:30px 18px 20px;border-radius:26px}
-  .card{padding:18px}
-  .quick-steps,.kpis{grid-template-columns:1fr}
-  textarea{min-height:300px}
-  .meta{flex-direction:column;align-items:flex-start}
-}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
-<main class="wrap">
+<div class="shell">
+  <header class="topbar">
+    <div class="brand"><span class="brandmark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/><path d="m10 14 4-4"/></svg></span>TextBridge</div>
+    <div class="topright">
+      <span class="connection" id="connectionBadge"><span class="led" aria-hidden="true"></span><span id="connected">Not connected</span></span>
+      <button class="link-btn" id="connect">Connect</button>
+    </div>
+  </header>
+
   <section class="hero">
-    <div class="eyebrow">ESP32 Text Bridge</div>
-    <h1>Simple, clean code transfer.</h1>
-    <p class="sub">Connect your ESP32, paste your code, validate it, and send it. Designed for fast everyday use with a cleaner flow: <strong>Connect → Paste → Simulate → Send</strong>.</p>
-    <div class="hero-grid">
-      <div class="quick">
-        <div class="mini-title">Quick flow</div>
-        <div class="quick-steps">
-          <div class="step-pill"><div class="step-num">1</div><div class="step-title">Connect</div><div class="step-copy">Pair your ESP32 and confirm Bluetooth is ready.</div></div>
-          <div class="step-pill"><div class="step-num">2</div><div class="step-title">Paste</div><div class="step-copy">Drop in Python or general code from your clipboard.</div></div>
-          <div class="step-pill"><div class="step-num">3</div><div class="step-title">Simulate</div><div class="step-copy">Preview the result and validate the Smart HID plan.</div></div>
-          <div class="step-pill"><div class="step-num">4</div><div class="step-title">Send</div><div class="step-copy">Transfer to ESP32, then press BOOT on the board.</div></div>
-        </div>
-      </div>
-      <aside class="hero-aside quick">
-        <div class="mini-title">Current setup</div>
-        <div class="row" style="margin-bottom:12px">
-          <span class="badge"><span class="dot"></span>Smart Python ready</span>
-          <span class="badge">40 / 40 timing</span>
-          <span class="badge">BLE web sender</span>
-        </div>
-        <p class="small">Use <strong>Smart Python</strong> for Python code. Use <strong>Normal</strong> for plain text or quick manual typing. This interface keeps advanced details tucked away so the main flow stays simple.</p>
-      </aside>
-    </div>
+    <h1>Paste. Send. Done.</h1>
+    <p>Your code, transferred wirelessly.<br>Formatting checked automatically.</p>
   </section>
 
-  <section class="layout">
-    <div class="card">
-      <h2 class="section-title">Code</h2>
-      <p class="section-sub">Paste your source below. The page counts bytes automatically and keeps the core actions upfront.</p>
-      <textarea id="source" spellcheck="false" autocapitalize="off" autocorrect="off" placeholder="Paste your code here"></textarea>
-      <div class="meta">
-        <span id="count">0 bytes original</span>
-        <div class="row">
-          <button class="button secondary" id="sample">Load test</button>
-          <button class="button secondary" id="paste">Paste</button>
-        </div>
+  <main class="app">
+    <div class="toolbar">
+      <span class="toolbar-label">Your code</span>
+      <div class="mode" role="group" aria-label="Typing mode">
+        <button type="button" id="smartMode" aria-pressed="true">Smart Python</button>
+        <button type="button" id="normalMode" aria-pressed="false">Normal</button>
       </div>
-      <div class="spacer"></div>
-      <label for="mode">Mode</label>
-      <select id="mode">
-        <option value="smart">Smart Python</option>
-        <option value="normal">Normal text</option>
-      </select>
-      <div class="actions">
-        <button class="button primary" id="simulate">Run simulation</button>
-        <button class="button secondary" id="copyPlan" disabled>Copy plan</button>
-      </div>
+      <select id="mode" aria-label="Typing mode"><option value="smart">Smart Python</option><option value="normal">Normal text</option></select>
     </div>
-
-    <div class="stack">
-      <div class="card">
-        <h2 class="section-title">Settings</h2>
-        <p class="section-sub">Keep these simple. Choose how your editor behaves, then simulate before sending.</p>
-        <label for="profile">Editor profile</label>
-        <select id="profile">
-          <option value="python">VS Code-like Python</option>
-          <option value="copy">Copy previous indentation</option>
-          <option value="none">No auto indentation</option>
-        </select>
-        <label for="indent">Indent size</label>
-        <select id="indent">
-          <option value="4">4 spaces</option>
-          <option value="2">2 spaces</option>
-          <option value="8">8 spaces</option>
-        </select>
-        <div class="status" id="simMessage">Run simulation to validate the proposed keystrokes.</div>
-        <details>
-          <summary>Advanced note</summary>
-          <p class="small">Smart Python uses cursor-control keys to clear indentation added by the editor, then types the exact indentation from your source.</p>
-        </details>
-      </div>
-
-      <div class="card">
-        <h2 class="section-title">Bluetooth</h2>
-        <p class="section-sub">Connect first, then send after a successful simulation.</p>
-        <div class="actions">
-          <button class="button primary" id="connect">Connect ESP32</button>
-          <button class="button secondary" id="disconnect" disabled>Disconnect</button>
-        </div>
-        <div class="meta" style="margin-top:12px"><span id="connected">Not connected</span><span id="encodedCount">0 / 6000 encoded bytes</span></div>
-        <div class="progress-wrap"><div class="progress"><div id="bar"></div></div></div>
-        <div class="actions"><button class="button primary" id="send" disabled>Send to ESP32</button></div>
-        <div class="status" id="transferMessage">Connect, simulate, then send. Open your editor on the receiving PC and press BOOT.</div>
-      </div>
+    <div class="editor-wrap"><textarea id="source" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Paste code" placeholder="Paste your Python code here…"></textarea></div>
+    <div class="editor-foot">
+      <span id="count">0 bytes</span>
+      <div class="text-actions"><button class="mini" id="paste">Paste</button><button class="mini" id="clearText">Clear</button></div>
     </div>
-  </section>
-
-  <section class="card" style="margin-top:16px">
-    <h2 class="section-title">Simulation result</h2>
-    <p class="section-sub">See how naive typing compares to Smart HID before you send anything.</p>
-    <div class="kpis">
-      <div class="kpi"><span class="label">Naive</span><strong id="naiveResult">—</strong></div>
-      <div class="kpi"><span class="label">Smart</span><strong id="smartResult">—</strong></div>
-      <div class="kpi"><span class="label">Plan</span><strong id="planResult">—</strong></div>
+    <div class="cta-area">
+      <div class="validation" id="validation" aria-live="polite"><span class="small-dot" aria-hidden="true"></span><span id="validationText">Ready when you are</span></div>
+      <button class="big-btn" id="send" type="button"><span id="sendLabel">Connect ESP32 to send</span><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+      <div class="transfer-progress" role="progressbar" aria-label="Transfer progress"><div id="bar"></div></div>
+      <p id="transferMessage" role="status" aria-live="polite">Connect your ESP32, then send your code.</p>
     </div>
-    <div class="columns">
-      <div>
-        <label>Original</label>
-        <pre class="code" id="originalView">—</pre>
-      </div>
-      <div>
-        <label>Simulated output</label>
-        <pre class="code" id="outputView">—</pre>
-      </div>
-    </div>
-    <div class="summary" id="comparison"></div>
-    <details>
-      <summary>Show HID plan</summary>
-      <pre class="code" id="planView">—</pre>
-    </details>
-  </section>
+  </main>
 
-  <section class="card footer-card">
-    <h2 class="section-title">Activity</h2>
-    <p class="section-sub">Progress and transfer logs.</p>
-    <pre class="code log" id="log">Ready.</pre>
-    <details>
-      <summary>Quick checklist</summary>
-      <ol class="help-list">
-        <li>Connect Windows first as the BLE keyboard, then connect your phone or browser sender.</li>
-        <li>Use a blank file in the target editor for the first test.</li>
-        <li>Run simulation before sending Smart Python.</li>
-        <li>Press BOOT on the ESP32 after the page confirms the transfer.</li>
-      </ol>
-    </details>
-  </section>
-</main>
+  <p class="bottom-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Works with your current ESP32 firmware. Press BOOT after sending.</p>
+
+  <details class="advanced" id="advanced">
+    <summary>Advanced <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></summary>
+    <div class="advanced-content">
+      <h2>Preferences</h2><p>Defaults are tuned for your tested Python workflow.</p>
+      <div class="advanced-grid">
+        <div><label for="profile">Editor behavior</label><select id="profile"><option value="python">Python auto-indent</option><option value="copy">Copy previous indentation</option><option value="none">No auto-indent</option></select></div>
+        <div><label for="indent">Indent size</label><select id="indent"><option value="4">4 spaces</option><option value="2">2 spaces</option><option value="8">8 spaces</option></select></div>
+      </div>
+      <div class="testtools">
+        <button class="outline" type="button" id="sample">Load sample</button>
+        <button class="outline" type="button" id="simulate">Run simulation</button>
+        <button class="outline" type="button" id="disconnect" disabled>Disconnect</button>
+        <button class="outline" type="button" id="copyPlan" disabled>Copy HID plan</button>
+      </div>
+      <div id="simMessage">Formatting will be checked when you paste or type.</div>
+      <details class="technical">
+        <summary>Simulation details</summary>
+        <div class="metrics"><span>Normal: <b id="naiveResult">—</b></span><span>Smart: <b id="smartResult">—</b></span><span>Actions: <b id="planResult">—</b></span></div>
+        <div class="columns"><div><label>Original</label><pre id="originalView">—</pre></div><div><label>Simulated</label><pre id="outputView">—</pre></div></div>
+        <p id="comparison"></p>
+        <details><summary>HID instruction plan</summary><pre id="planView">—</pre></details>
+      </details>
+      <details class="technical">
+        <summary>Transfer log</summary><p id="encodedCount">0 / 6000 encoded bytes</p><pre id="log">Ready.</pre>
+      </details>
+      <p class="tech-status">A model match does not guarantee how a live editor will interpret keys. Only transfer to devices and applications where you are authorized to use automation.</p>
+    </div>
+  </details>
+</div>
 <script>
+
 'use strict';
 const SERVICE_UUID='76a80001-8c7b-4c6b-9211-57a2b1d00001';
 const WRITE_UUID='76a80002-8c7b-4c6b-9211-57a2b1d00001';
@@ -364,32 +278,48 @@ function build(src,mode,profile,size){const source=norm(src);if(!source.trim())t
 }
 function planText(ops){let out=[],buf='';function flush(){if(buf){out.push('TYPE '+JSON.stringify(buf));buf=''}}
   for(const o of ops){if(o.op==='TEXT'){buf+=o.c;}else{flush();out.push(o.op)}}flush();return out.join('\n');}
-function setStatus(text,bad=false){$('transferMessage').textContent=text;$('transferMessage').className='status'+(bad?' bad':'');}
+function setStatus(text,bad=false){$('transferMessage').textContent=text;$('transferMessage').className=bad?'bad':'';}
 function log(text){$('log').textContent+='\n'+text;$('log').scrollTop=$('log').scrollHeight;}
 function bar(p){$('bar').style.width=p+'%'}
 function connected(){return !!(device?.gatt?.connected&&characteristic)}
 function refresh(){
-  $('count').textContent=encoder.encode(norm($('source').value)).length+' bytes original';
-  $('connect').disabled=busy||connected();$('disconnect').disabled=busy||!connected();
-  $('send').disabled=busy||!connected()||!last||(last.mode==='smart'&&!last.match)||last.source!==norm($('source').value)||last.mode!==$('mode').value||last.profile!==$('profile').value||last.size!==Number($('indent').value);
-  $('connected').textContent=connected()?'BLE connected':'Not connected';
+  const len=encoder.encode(norm($('source').value)).length;
+  $('count').textContent=len.toLocaleString()+' bytes';
+  $('connect').disabled=busy||connected();
+  $('disconnect').disabled=busy||!connected();
+  $('connect').textContent=connected()?'Connected':'Connect';
+  $('connected').textContent=connected()?'Connected':'Offline';
+  $('connectionBadge').classList.toggle('active',connected());
+  const stale=!last||last.source!==norm($('source').value)||last.mode!==$('mode').value||last.profile!==$('profile').value||last.size!==Number($('indent').value);
+  $('send').disabled=busy||!len||(last&&!stale&&last.mode==='smart'&&!last.match);
+  $('sendLabel').textContent=busy?'Working…':connected()?'Send code':'Connect ESP32 to send';
   $('encodedCount').textContent=(last?last.bytes.length:0)+' / 6000 encoded bytes';
+  $('smartMode').setAttribute('aria-pressed',$('mode').value==='smart'?'true':'false');
+  $('normalMode').setAttribute('aria-pressed',$('mode').value==='normal'?'true':'false');
 }
+function validation(message,type='neutral'){
+  $('validationText').textContent=message;
+  $('validation').className='validation'+(type==='good'?' isgood':type==='bad'?' isbad':'');
+}
+
 function simulate(){try{
   const mode=$('mode').value,profile=$('profile').value,size=Number($('indent').value);
   const r=build($('source').value,mode,profile,size);last={...r,mode,profile,size};
   $('originalView').textContent=r.source;$('outputView').textContent=r.simulated;
-  $('naiveResult').textContent=r.naiveDiff+' changed lines';$('naiveResult').className=r.naiveDiff?'bad':'good';
-  $('smartResult').textContent=r.match?'Exact model match':'Mismatch';$('smartResult').className=r.match?'good':'bad';
-  $('planResult').textContent=r.ops.length+' keystrokes';$('planView').textContent=planText(r.ops);
-  $('comparison').textContent=r.match?'Exact match in this VIRTUAL model only. Real VS Code still needs testing.':
+  $('naiveResult').textContent=r.naiveDiff+' changed lines';
+  $('smartResult').textContent=r.match?'Exact model match':'Mismatch';
+  $('planResult').textContent=r.ops.length+' actions';$('planView').textContent=planText(r.ops);
+  $('comparison').textContent=r.match?'Exact match in virtual simulation; real editor behavior can differ.':
      'First mismatch: line '+r.diff.line+', column '+r.diff.column+' (expected '+r.diff.expected+'; got '+r.diff.actual+').';
-  $('simMessage').textContent=r.match?'Simulation matches source in this model. Ready for a real editor test.':mode==='normal'?'Normal mode may not match an auto-indenting editor. You may still send it to a plain-text editor.':'Smart simulation mismatch. Smart transmission is blocked.';
-  $('simMessage').className='status gap '+(r.match?'good':'bad');
+  $('simMessage').textContent=r.match?'The virtual formatting check passed.':mode==='normal'?'Normal mode may alter formatting in auto-indenting editors.':'Smart simulation mismatch. Transfer blocked.';
+  $('simMessage').className=r.match?'':'bad';
+  validation(mode==='normal'?'Normal mode · No auto-indent correction':r.match?'Formatting check passed':'Formatting check failed',r.match?'good':mode==='normal'?'neutral':'bad');
   $('copyPlan').disabled=false;
-}catch(e){last=null;$('smartResult').textContent='Not ready';$('simMessage').textContent=e.message;$('simMessage').className='status gap bad';$('copyPlan').disabled=true;}
-  refresh();
-}
+  return true;
+}catch(e){last=null;$('smartResult').textContent='Not ready';$('simMessage').textContent=e.message;$('simMessage').className='bad';$('copyPlan').disabled=true;
+  validation(e.message, 'bad');return false;
+}finally{refresh();}}
+
 async function bleWrite(bytes){if(!connected())throw Error('Not connected');
   if(characteristic.writeValueWithResponse)await characteristic.writeValueWithResponse(bytes);
   else await characteristic.writeValue(bytes);
@@ -411,11 +341,14 @@ $('connect').onclick=async()=>{if(!navigator.bluetooth){setStatus('Web Bluetooth
     const s=await device.gatt.connect();const srv=await s.getPrimaryService(SERVICE_UUID);
     characteristic=await srv.getCharacteristic(WRITE_UUID);
     try{statusCharacteristic=await srv.getCharacteristic(STATUS_UUID)}catch(e){statusCharacteristic=null;}
-    setStatus('Bluetooth connected. Run simulation, then Send.');log('Connected to '+(device.name||'ESP32'));
+    setStatus('Connected. Ready to send when your code passes validation.');log('Connected to '+(device.name||'ESP32'));
   }catch(e){setStatus('Bluetooth connection failed: '+e.message,true);log(e.message)}finally{busy=false;refresh();}};
 $('disconnect').onclick=()=>{if(device?.gatt?.connected)device.gatt.disconnect()};
 $('send').onclick=async()=>{
-  if(busy||!last||(last.mode==='smart'&&!last.match))return;
+  if(busy)return;
+  if(!connected()){$('connect').click();return;}
+  if(!last||last.source!==norm($('source').value)||last.mode!==$('mode').value||last.profile!==$('profile').value||last.size!==Number($('indent').value)) {if(!simulate())return;}
+  if(!last||(last.mode==='smart'&&!last.match))return;
   const r=last;
   if(r.source!==norm($('source').value)||r.mode!==$('mode').value||r.profile!==$('profile').value||r.size!==Number($('indent').value)){
     setStatus('Source or settings changed; rerun simulation.',true);return;
@@ -445,11 +378,20 @@ $('send').onclick=async()=>{
   }catch(e){setStatus('Transfer failed: '+e.message,true);log('Transfer failure: '+e.message)}finally{busy=false;refresh();}
 };
 $('simulate').onclick=simulate;
-$('sample').onclick=()=>{$('source').value=TEST;simulate()};
-$('paste').onclick=async()=>{try{$('source').value=await navigator.clipboard.readText();simulate()}catch(e){setStatus('Clipboard permission denied; paste manually into the text area.',true)}};
-$('copyPlan').onclick=async()=>{if(last)try{await navigator.clipboard.writeText(planText(last.ops));setStatus('Instruction plan copied')}catch(e){setStatus('Clipboard permission denied.',true)}};
-for(const id of ['source','mode','profile','indent'])$(id).addEventListener('input',()=>{last=null;refresh()});
+$('sample').onclick=()=>{$('source').value=TEST;simulate();};
+$('paste').onclick=async()=>{try{$('source').value=await navigator.clipboard.readText();simulate();}catch(e){setStatus('Clipboard unavailable. Long-press inside the code field and choose Paste.',true);}};
+$('copyPlan').onclick=async()=>{if(last)try{await navigator.clipboard.writeText(planText(last.ops));setStatus('HID plan copied.');}catch(e){setStatus('Clipboard permission denied.',true);}};
+$('clearText').onclick=()=>{$('source').value='';last=null;bar(0);validation('Ready when you are');setStatus('Paste code to begin.');refresh();$('source').focus();};
+function changeMode(m){$('mode').value=m;last=null;refresh();if($('source').value.trim())simulate();}
+$('smartMode').onclick=()=>changeMode('smart');
+$('normalMode').onclick=()=>changeMode('normal');
+let typingCheck=null;
+function scheduleCheck(){last=null;validation('Checking formatting…');refresh();clearTimeout(typingCheck);
+  if(!$('source').value.trim()){validation('Ready when you are');return;}
+  typingCheck=setTimeout(simulate,180);
+}
+for(const id of ['source','profile','indent'])$(id).addEventListener('input',scheduleCheck);
 $('source').addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();const t=$('source'),a=t.selectionStart,b=t.selectionEnd;
-  t.setRangeText('    ',a,b,'end');last=null;refresh();}});
-$('source').value=TEST;simulate();
+  t.setRangeText('    ',a,b,'end');scheduleCheck();}});
+$('source').value='';validation('Ready when you are');refresh();
 </script></body></html>
