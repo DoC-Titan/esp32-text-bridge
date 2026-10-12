@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" id="themeMeta" content="#f5f5f7">
+<meta name="theme-color" id="themeMeta" content="#f7f8fa">
 <script>
 try{
   const savedTheme=localStorage.getItem('textbridge-appearance');
@@ -12,177 +12,12 @@ try{
 }catch(e){document.documentElement.dataset.theme='light';}
 </script>
 <meta name="description" content="A simple Bluetooth code bridge for your ESP32.">
-<title>TextBridge — Reliable wireless code.</title>
+<title>TextBridge — Code, without cables.</title>
 <style>
-:root{color-scheme:light;--bg:#f5f5f7;--surface:#fff;--text:#1d1d1f;--secondary:#6e6e73;--hairline:#e5e5ea;--blue:#0071e3;--blue-hover:#0077ed;--blue-soft:#eaf4ff;--green:#24875a;--red:#d12d39;--shadow:0 16px 50px rgba(0,0,0,.035),0 2px 9px rgba(0,0,0,.025)}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif}
-button,select,textarea{font:inherit}
-button{touch-action:manipulation}
-button:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #9bcfff;outline-offset:3px}
-.shell{max-width:840px;padding:0 24px 72px;margin:auto}
-.topbar{height:82px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid rgba(0,0,0,.045)}
-.brand{display:flex;align-items:center;gap:10px;font-size:17px;letter-spacing:-.04em;font-weight:670}
-.brandmark{width:28px;height:28px;display:grid;place-items:center;border-radius:9px;background:#1d1d1f;color:white}
-.topright{display:flex;align-items:center;gap:10px}
-.link-btn{border:0;background:transparent;color:var(--blue);padding:8px 10px;border-radius:20px;font-weight:600;font-size:13px;cursor:pointer;transition:background .16s}
-.link-btn:hover{background:#eaf4ff}
-.link-btn:disabled{color:#97979d;cursor:default}
-.connection{display:flex;align-items:center;gap:7px;color:var(--secondary);font-size:12px;white-space:nowrap}
-.connection .led{width:7px;height:7px;background:#a5a5aa;border-radius:50%;transition:background .3s,box-shadow .3s}
-.connection.active .led{background:var(--green);box-shadow:0 0 0 4px rgba(36,135,90,.10)}
-.hero{padding:58px 0 34px;text-align:center;animation:up .55s cubic-bezier(.2,.8,.2,1) both}
-.hero h1{font-size:clamp(40px,6.5vw,64px);font-weight:690;letter-spacing:-.064em;line-height:1.07;margin:0 0 14px}
-.hero p{margin:0 auto;color:var(--secondary);font-size:clamp(15px,2vw,18px);max-width:420px;letter-spacing:-.015em}
-.app{background:var(--surface);border:1px solid rgba(0,0,0,.04);border-radius:24px;box-shadow:var(--shadow);overflow:hidden;animation:up .65s .07s cubic-bezier(.2,.8,.2,1) both}
-@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 22px;border-bottom:1px solid #f0f0f2}
-.toolbar-label{font-weight:630;font-size:14px;letter-spacing:-.02em}
-.mode{display:flex;align-items:center;background:#f5f5f7;padding:4px;border-radius:12px;gap:2px}
-.mode button{border:0;background:transparent;color:var(--secondary);border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:620;cursor:pointer;transition:background .18s,box-shadow .18s,color .18s}
-.mode button[aria-pressed="true"]{background:white;color:var(--text);box-shadow:0 1px 5px rgba(0,0,0,.08)}
-#mode{display:none}
-.editor-wrap{padding:14px 22px 0}
-#source{width:100%;min-height:300px;height:min(44vh,440px);resize:vertical;border:0;outline:0;background:#fff;color:#262629;padding:8px 2px;font:13px/1.65 ui-monospace,"SFMono-Regular",Menlo,Monaco,Consolas,monospace;white-space:pre;tab-size:4;letter-spacing:0}
-#source::placeholder{color:#aaaab0}
-.editor-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 22px 16px;color:var(--secondary);font-size:12px;border-bottom:1px solid #f0f0f2}
-.text-actions{display:flex;align-items:center;gap:4px}
-.mini{border:0;color:var(--blue);background:transparent;border-radius:9px;padding:7px 10px;font-size:12.5px;font-weight:600;cursor:pointer}
-.mini:hover{background:var(--blue-soft)}
-.mini:disabled{color:#aaa}
-.cta-area{padding:20px 22px 22px;background:linear-gradient(180deg,#fff,#fcfcfd)}
-.validation{display:flex;align-items:center;gap:8px;min-height:24px;color:var(--secondary);font-size:13px;margin-bottom:13px}
-.validation .small-dot{width:7px;height:7px;background:#bbb;border-radius:50%;flex:none}
-.validation.isgood{color:var(--green)}.validation.isgood .small-dot{background:var(--green)}
-.validation.isbad{color:var(--red)}.validation.isbad .small-dot{background:var(--red)}
-.big-btn{width:100%;background:var(--blue);color:white;border:0;border-radius:14px;min-height:54px;display:flex;justify-content:center;align-items:center;gap:9px;font-size:16px;font-weight:630;cursor:pointer;transition:background .18s,transform .18s,box-shadow .18s;box-shadow:0 6px 16px rgba(0,113,227,.16)}
-.big-btn:hover{background:var(--blue-hover);box-shadow:0 9px 20px rgba(0,113,227,.19)}
-.big-btn:active{transform:scale(.994)}
-.big-btn:disabled{background:#b2c8df;cursor:not-allowed;box-shadow:none;transform:none}
-.big-btn svg{width:16px;height:16px}
-.transfer-progress{height:3px;background:#e8e8ed;overflow:hidden;border-radius:99px;margin:13px 0 0}
-.transfer-progress>div{height:100%;width:0%;background:var(--blue);transition:width .18s ease}
-#transferMessage{font-size:12px;color:var(--secondary);text-align:center;margin:10px auto 0;min-height:18px;max-width:520px;overflow-wrap:anywhere}
-#transferMessage.bad{color:var(--red)}
-.bottom-note{display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;color:var(--secondary);margin-top:20px;text-align:center}
-.bottom-note svg{flex:none}
-.advanced{margin:28px auto 0;max-width:792px}
-.advanced>summary{display:flex;justify-content:center;align-items:center;gap:5px;width:max-content;margin:auto;padding:10px 14px;border-radius:14px;cursor:pointer;list-style:none;color:#6e6e73;font-size:13px}
-.advanced>summary:hover{color:var(--blue);background:#ebebef}
-.advanced>summary::-webkit-details-marker{display:none}
-.advanced>summary svg{transition:transform .2s}
-.advanced[open]>summary svg{transform:rotate(180deg)}
-.advanced-content{margin-top:10px;background:#fff;border:1px solid var(--hairline);border-radius:20px;padding:20px;box-shadow:0 5px 22px rgba(0,0,0,.025)}
-.advanced-content h2{font-size:17px;letter-spacing:-.025em;margin:0 0 8px}
-.advanced-content p{margin:5px 0 16px;color:var(--secondary);font-size:13px}
-.advanced-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.advanced label{display:block;font-size:12px;font-weight:650;margin-bottom:6px}
-.advanced select{width:100%;background:#f5f5f7;border:1px solid var(--hairline);border-radius:10px;padding:12px;font-size:13px;color:var(--text)}
-.advanced details{margin-top:16px;border-top:1px solid var(--hairline);padding-top:14px}
-.advanced details summary{font-size:13px;font-weight:600;cursor:pointer;color:var(--blue)}
-.advanced .testtools{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
-.outline{border:1px solid var(--hairline);background:#fff;color:var(--text);border-radius:10px;padding:9px 12px;font-weight:600;font-size:12px;cursor:pointer}
-.outline:hover{background:#f5f5f7}
-.outline:disabled{opacity:.4;cursor:not-allowed}
-.tech-status{font-size:12px;color:var(--secondary);margin-top:10px}
-.metrics{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}
-.metrics span{font-size:12px;padding:8px 10px;border-radius:12px;background:#f5f5f7}
-.technical pre{background:#f5f5f7;border-radius:10px;border:1px solid #eee;padding:12px;max-height:260px;overflow:auto;white-space:pre;tab-size:4;font:11px/1.6 ui-monospace,monospace}
-.technical .columns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.technical .columns label{display:block;margin:8px 0}
-.technical #comparison{font-size:12px;color:var(--secondary)}
-.technical #log{white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px}
-.good{color:var(--green)}.bad{color:var(--red)}
-#simMessage{margin-top:10px;font-size:12px;color:var(--secondary)}
-#simMessage.bad{color:var(--red)}
-@media(max-width:640px){
- .shell{padding:0 12px 80px}
- .topbar{height:64px;padding:0 4px}
- .brand{font-size:16px}
- .connection{font-size:11px}
- .topright{gap:2px}
- .topright .link-btn{font-size:12px;padding:9px}
- .hero{padding:36px 0 27px}
- .hero h1{font-size:clamp(38px,10vw,47px);margin-bottom:12px}
- .hero p{font-size:15px;max-width:300px}
- .app{border-radius:20px}
- .toolbar{padding:15px 14px}
- .mode button{font-size:11px;padding:8px 9px}
- .editor-wrap{padding:8px 15px 0}
- #source{min-height:230px;height:42vh;font-size:12px;line-height:1.7}
- .editor-foot{padding:4px 14px 12px}
- .cta-area{padding:16px 14px 16px}
- .big-btn{min-height:52px}
- .advanced-content{padding:16px}
- .advanced-grid,.technical .columns{grid-template-columns:1fr}
-}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
-
-/* Only additional controls live under Advanced: keep the primary view minimal. */
-.benchmark-output{display:block;width:100%;height:154px;resize:vertical;border:1px solid var(--hairline);background:#fafafa;color:var(--text);padding:12px;border-radius:12px;font:12px/1.6 ui-monospace,Menlo,Consolas,monospace;tab-size:4;white-space:pre}
-.connection.reconnecting .led{background:#dfa028;animation:pulse 1.3s ease-in-out infinite}
-@keyframes pulse{50%{opacity:.35;transform:scale(.85)}}
-.reliability-note{color:var(--secondary);font-size:12px;line-height:1.5;margin-top:9px}
-#benchmarkResult{font-size:12px;margin-top:10px;white-space:pre-wrap}
-@media(max-width:640px){.benchmark-output{height:120px}.advanced-content{padding:14px}}
-
-/* Appearance: neutral monochrome surfaces + Apple-like blue accent. */
-:root{--field:#fff;--subtle:#f5f5f7;--subtle-hover:#ebebef;--divider:#f0f0f2;--off-btn:#b2c8df;--hint:#aaaab0}
-html[data-theme="dark"]{
- color-scheme:dark;--bg:#0b0b0d;--surface:#1c1c1e;--text:#f5f5f7;
- --secondary:#a1a1a6;--hairline:#37373b;--blue:#0a84ff;
- --blue-hover:#409cff;--blue-soft:#132943;--green:#35c98a;
- --red:#ff686c;--field:#1c1c1e;--subtle:#2c2c2e;
- --subtle-hover:#38383a;--divider:#37373b;--off-btn:#425368;--hint:#77777e;
- --shadow:0 16px 48px rgba(0,0,0,.26),0 2px 9px rgba(0,0,0,.2)
-}
-.topbar{border-bottom-color:var(--divider)}
-.brandmark{background:var(--text);color:var(--bg)}
-.link-btn:hover,.mini:hover{background:var(--blue-soft)}
-.app{border-color:var(--hairline)}
-.toolbar,.editor-foot{border-bottom-color:var(--divider)}
-.mode,.advanced select,.metrics span,.technical pre,.outline:hover{background:var(--subtle)}
-.mode button[aria-pressed="true"]{background:var(--surface);color:var(--text)}
-#source{background:var(--field);color:var(--text)}
-#source::placeholder{color:var(--hint)}
-.cta-area{background:var(--surface)}
-.big-btn:disabled{background:var(--off-btn)}
-.transfer-progress{background:var(--subtle-hover)}
-.advanced>summary{color:var(--secondary)}
-.advanced>summary:hover{background:var(--subtle-hover)}
-.advanced-content{background:var(--surface)}
-.outline{background:var(--surface);color:var(--text)}
-.benchmark-output{background:var(--subtle);color:var(--text)}
-.icon-btn{height:36px;width:36px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:var(--text);cursor:pointer;transition:background .2s,transform .2s}
-.icon-btn:hover{background:var(--subtle-hover)}.icon-btn:active{transform:scale(.94)}
-.icon-btn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.8}
-.icon-btn .sun{display:none}html[data-theme="dark"] .icon-btn .moon{display:none}html[data-theme="dark"] .icon-btn .sun{display:block}
-.language-bar{display:flex;align-items:center;gap:7px;overflow-x:auto;scrollbar-width:none;padding:12px 20px 10px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;border-bottom:1px solid var(--divider)}
-.language-bar::-webkit-scrollbar{display:none}
-.lang-btn{border:0;flex:none;scroll-snap-align:start;border-radius:10px;background:transparent;color:var(--secondary);padding:9px 14px;font-weight:630;font-size:13px;cursor:pointer;transition:background .18s,color .18s}
-.lang-btn:hover{background:var(--subtle)}
-.lang-btn[aria-pressed="true"]{background:var(--text);color:var(--surface)}
-#languageInfo{font-size:11.5px;color:var(--secondary);padding:8px 22px 0;min-height:28px;line-height:1.4}
-.send-options{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:3px 0 14px}
-.speed-controls{display:flex;align-items:center;gap:10px;min-width:0}
-.speed-controls label{font-size:12.5px;color:var(--secondary);white-space:nowrap}
-.speed-controls select{font-size:12.5px;font-weight:590;color:var(--text);background:var(--subtle);border:1px solid var(--hairline);border-radius:10px;padding:8px 28px 8px 10px;min-height:38px;cursor:pointer}
-#speedBadge{font-size:11px;color:var(--secondary)}
-@media(max-width:640px){
- .icon-btn{width:35px;height:35px}.topright{gap:0}
- .language-bar{padding:10px 10px 8px;gap:4px}
- .lang-btn{padding:9px 11px;font-size:12px}
- #languageInfo{padding:7px 14px 0}
- .send-options{align-items:flex-start}.speed-controls{gap:7px}
- .speed-controls label{font-size:12px}
- .speed-controls select{max-width:160px;padding:8px 24px 8px 7px}
- #speedBadge{font-size:10.5px;text-align:right}
-}
-</style>
-</head>
-<body>
-<div class="shell">
+:root{color-scheme:light;--bg:#f7f8fa;--surface:#fff;--text:#20272c;--secondary:#68747e;--hairline:#e6eaed;--subtle:#f3f5f6;--hover:#eaf0f0;--accent:#26675e;--accent-hover:#1c514a;--soft:#eaf3ef;--green:#29725b;--red:#be4545;--hint:#8b959d;--shadow:0 16px 48px -28px #344a5740;--mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace}
+html[data-theme="dark"]{color-scheme:dark;--bg:#131819;--surface:#1a2022;--text:#e7eeee;--secondary:#9caeb0;--hairline:#2c373a;--subtle:#20292b;--hover:#2b3838;--accent:#99cebc;--accent-hover:#b3dece;--soft:#263e35;--green:#99cebc;--red:#ff9a93;--hint:#819396;--shadow:0 16px 48px -28px #0008}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}button,input,select,textarea{font:inherit}button,summary,input[type=range]{touch-action:manipulation}button{cursor:pointer}button:disabled{cursor:default;opacity:.45}button,summary,a,input,select,textarea{-webkit-tap-highlight-color:transparent}button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:4px}button{transition:background .15s,color .15s,opacity .15s}svg{display:block;flex:none}button svg{width:18px;height:18px}button,select{color:var(--text)}.shell{max-width:920px;margin:auto;padding:0 30px 32px}.topbar{height:100px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{display:flex;align-items:center;gap:11px;font-size:19px;font-weight:650;letter-spacing:-.7px}.brandmark{display:grid;place-items:center;background:var(--accent);color:var(--surface);width:32px;height:32px;border-radius:10px}.topright{display:flex;align-items:center;gap:16px}.icon-btn{width:36px;height:36px;border:0;background:transparent;display:grid;place-items:center;border-radius:50%;color:var(--secondary)}.icon-btn:hover{background:var(--hover)}.icon-btn svg{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.sun{display:none!important}html[data-theme=dark] .moon{display:none}html[data-theme=dark] .sun{display:block!important}.connection{display:flex;align-items:center;gap:7px;color:var(--secondary);font-size:12px}.led{height:6px;width:6px;border-radius:50%;background:var(--hint)}.connection.active .led{background:var(--green);box-shadow:0 0 0 3px var(--soft)}.connection.reconnecting .led{animation:pulse 1.4s infinite}.link-btn{border:1px solid var(--hairline);border-radius:9px;background:var(--surface);padding:8px 15px;font-size:12px;font-weight:600}.link-btn:hover{background:var(--hover)}.hero{padding:32px 0 30px}.eyebrow{display:flex;align-items:center;gap:8px;color:var(--accent);font-size:10px;letter-spacing:1.8px;font-weight:650;text-transform:uppercase;margin-bottom:13px}.eyebrow:before{content:"";height:1px;width:22px;background:currentColor}.hero h1{margin:0;font-size:clamp(32px,5.3vw,46px);line-height:1.14;letter-spacing:-2px;font-weight:550}.hero h1 span{color:var(--secondary)}.hero p{margin:12px 0 0;color:var(--secondary);font-size:14px}.app{background:var(--surface);border:1px solid var(--hairline);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}.toolbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--hairline);gap:10px}.language-bar{display:flex;gap:3px;overflow:auto;scrollbar-width:none}.language-bar::-webkit-scrollbar{display:none}.lang-btn{border:0;border-radius:7px;background:none;color:var(--secondary);padding:7px 13px;font-size:12px;font-weight:550;white-space:nowrap}.lang-btn:hover{background:var(--subtle)}.lang-btn[aria-pressed=true]{background:var(--soft);color:var(--accent)}.toolbar-caption{font:10px var(--mono);letter-spacing:1.2px;color:var(--hint);white-space:nowrap}.editor-wrap{position:relative;display:flex;padding:22px 20px 12px;min-height:320px}.line-numbers{width:29px;flex:none;overflow:hidden;text-align:right;padding-right:13px;height:320px;white-space:pre;user-select:none;color:var(--hint);opacity:.75;font:12px/24px var(--mono)}#source{display:block;min-width:0;flex:1;height:320px;resize:vertical;border:0;border-radius:0;outline:none;background:transparent;color:var(--text);padding:0;margin:0;font:13px/24px var(--mono);tab-size:4;white-space:pre;overflow:auto}#source::placeholder{color:var(--hint)}.editor-wrap:focus-within{box-shadow:inset 3px 0 var(--accent)}.editor-foot{display:flex;align-items:center;justify-content:space-between;padding:0 20px 14px;gap:12px;color:var(--hint);font:11px var(--mono)}.text-actions{display:flex;align-items:center;gap:4px}.mini{border:0;border-radius:6px;background:transparent;color:var(--secondary);padding:7px 10px;font-size:12px}.mini:hover{background:var(--subtle);color:var(--text)}.cta-area{padding:22px 24px;background:var(--subtle);border-top:1px solid var(--hairline)}.send-row{display:flex;align-items:center;justify-content:space-between;gap:48px}.speed-controls{flex:1;max-width:370px;min-width:0}.speed-heading{display:flex;align-items:center;justify-content:space-between;font-size:12px;margin-bottom:5px}.speed-heading label{font-weight:600}.speed-heading output{color:var(--accent);font-size:11px}.slider-wrap{position:relative;display:flex;align-items:center;height:30px}#speed{--fill:0%;appearance:none;-webkit-appearance:none;width:100%;height:4px;border:0;border-radius:8px;margin:0;background:linear-gradient(to right,var(--accent) var(--fill),var(--hairline) var(--fill));cursor:pointer}#speed::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--surface);border:4px solid var(--accent);box-shadow:0 1px 3px #0002}#speed::-moz-range-thumb{width:9px;height:9px;border-radius:50%;background:var(--surface);border:4px solid var(--accent)}#speed:disabled{opacity:.5;cursor:default}.speed-scale{display:flex;justify-content:space-between;color:var(--secondary);font-size:10px}.big-btn{min-width:177px;height:48px;padding:0 20px;background:var(--accent);color:var(--surface);border:0;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:22px;font-weight:600;font-size:13px}.big-btn:hover:not(:disabled){background:var(--accent-hover)}.big-btn:active:not(:disabled){transform:translateY(1px)}.validation{font-size:12px;color:var(--red);margin-bottom:14px;overflow-wrap:anywhere}.validation:not(.isbad){display:none}.transfer-progress{height:3px;background:var(--hairline);border-radius:5px;overflow:hidden;margin-top:18px}.transfer-progress[hidden]{display:none}.transfer-progress>div{width:0;height:100%;background:var(--accent);transition:width .18s}#transferMessage{font-size:12px;color:var(--secondary);margin:14px 0 0;overflow-wrap:anywhere}#transferMessage:empty{display:none}#transferMessage.bad,.bad{color:var(--red)}.good{color:var(--green)}.footer-row{margin-top:19px;display:flex;justify-content:space-between;align-items:flex-start;color:var(--hint);font-size:11px;gap:20px}.footer-note{margin:5px 0}.advanced{flex:1;min-width:0}.advanced>summary{display:flex;justify-content:flex-end;align-items:center;gap:7px;list-style:none;cursor:pointer;color:var(--secondary);padding:5px 0;font-size:11px}.advanced>summary::-webkit-details-marker{display:none}.advanced>summary svg{width:13px;height:13px}.advanced[open]>summary{color:var(--accent)}.footer-row:has(.advanced[open]){flex-wrap:wrap}.advanced[open]{flex-basis:100%;order:2}.advanced-content{background:var(--surface);border:1px solid var(--hairline);border-radius:14px;padding:24px;margin-top:10px;color:var(--text);font-size:13px}.advanced-content h2{font-size:15px;font-weight:600;margin:0 0 18px}.advanced label{display:block;font-size:12px;font-weight:500;margin-bottom:8px}.mode{display:inline-flex;gap:4px;background:var(--subtle);padding:4px;border-radius:8px;margin-bottom:18px}.mode button{padding:8px 12px;border:0;border-radius:5px;background:none;font-size:12px;color:var(--secondary)}.mode button[aria-pressed=true]{background:var(--surface);color:var(--text);box-shadow:0 1px 4px #0001}#mode{display:none}.advanced-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.advanced select{width:100%;padding:10px 12px;border:1px solid var(--hairline);border-radius:8px;background:var(--subtle);font-size:12px}.advanced p{font-size:12px;color:var(--secondary);margin:12px 0}.advanced details{border-top:1px solid var(--hairline);margin-top:18px;padding-top:16px}.advanced details summary{cursor:pointer;color:var(--secondary);font-size:12px}.testtools{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.outline{background:var(--surface);border:1px solid var(--hairline);border-radius:7px;padding:8px 12px;font-size:11px}.outline:hover{background:var(--subtle)}.metrics{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--secondary)}.columns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.technical pre{font:11px/1.7 var(--mono);max-height:230px;overflow:auto;background:var(--subtle);padding:14px;border-radius:7px}.benchmark-output{width:100%;height:130px;border:1px solid var(--hairline);background:var(--subtle);color:var(--text);border-radius:8px;padding:12px;font:12px/1.6 var(--mono);resize:vertical}#log{white-space:pre-wrap;overflow-wrap:anywhere}#benchmarkResult,#simMessage,#firmwareStatus{font-size:12px;margin-top:12px;color:var(--secondary)}@keyframes pulse{50%{opacity:.4}}@media(min-width:1000px){.hero{padding-top:42px;padding-bottom:34px}}@media(max-width:600px){.shell{padding:0 18px 24px}.topbar{height:78px}.brand{font-size:17px;gap:8px}.brandmark{width:28px;height:28px;border-radius:8px}.topright{gap:9px}.connection{font-size:0;gap:0}.connection .led{width:7px;height:7px}.link-btn{padding:8px 12px}.hero{padding:24px 0}.hero h1{font-size:34px;letter-spacing:-1.5px}.hero p{font-size:13px}.eyebrow{font-size:9px}.toolbar{padding:12px 10px}.lang-btn{padding:7px 11px}.toolbar-caption{display:none}.editor-wrap{padding:20px 14px 12px;min-height:280px}#source,.line-numbers{height:280px}#source{font-size:12px}.editor-foot{padding:0 14px 12px}.cta-area{padding:18px}.send-row{flex-direction:column;gap:21px;align-items:stretch}.speed-controls{max-width:none}.big-btn{width:100%;gap:12px}.advanced-content{padding:18px}.advanced-grid,.columns{grid-template-columns:1fr}.footer-row{gap:8px}.footer-note{font-size:10px}.app{border-radius:14px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style></head><body><div class="shell">
   <header class="topbar">
     <div class="brand"><span class="brandmark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/><path d="m10 14 4-4"/></svg></span>TextBridge</div>
     <div class="topright">
@@ -190,56 +25,39 @@ html[data-theme="dark"]{
         <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 14.2A8.8 8.8 0 0 1 9.8 3.6 8.8 8.8 0 1 0 20.4 14.2Z"/></svg>
         <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
       </button>
-      <span class="connection" id="connectionBadge"><span class="led" aria-hidden="true"></span><span id="connected">Not connected</span></span>
+      <span class="connection" id="connectionBadge"><span class="led" aria-hidden="true"></span><span id="connected">Offline</span></span>
       <button class="link-btn" id="connect">Connect</button>
     </div>
   </header>
 
-  <section class="hero">
-    <h1>Paste. Send. Done.</h1>
-    <p>Your code, transferred wirelessly.<br>Formatting checked automatically.</p>
-  </section>
-
-  <main class="app">
-    <div class="toolbar"><span class="toolbar-label">Your code</span><span id="currentLanguage" class="tech-status">Python</span></div>
-    <nav class="language-bar" aria-label="Programming language">
+  <section class="hero"><div class="eyebrow">A wireless workspace</div><h1>Your code.<span> Without cables.</span></h1><p>Paste here. Send to your ESP32. Let it type.</p></section>
+  <main class="app" aria-label="TextBridge editor">
+    <div class="toolbar">    <nav class="language-bar" aria-label="Programming language">
       <button class="lang-btn" type="button" data-language="python" aria-pressed="true">Python</button>
       <button class="lang-btn" type="button" data-language="java" aria-pressed="false">Java</button>
       <button class="lang-btn" type="button" data-language="cpp" aria-pressed="false">C++</button>
       <button class="lang-btn" type="button" data-language="c" aria-pressed="false">C</button>
       <button class="lang-btn" type="button" data-language="text" aria-pressed="false">Text</button>
     </nav>
-    <p id="languageInfo">Smart indentation enabled for Python.</p>
-    <div class="editor-wrap"><textarea id="source" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Paste code" placeholder="Paste your Python code here…"></textarea></div>
-    <div class="editor-foot">
-      <span id="count">0 bytes</span>
-      <div class="text-actions"><button class="mini" id="paste">Paste</button><button class="mini" id="clearText">Clear</button></div>
-    </div>
+<span class="toolbar-caption" aria-hidden="true">TEXT / BRIDGE</span></div>
+    <div class="editor-wrap"><div class="line-numbers" id="lineNumbers" aria-hidden="true">1</div><textarea id="source" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Code to send" placeholder="Paste your Python code here…"></textarea></div>
+    <div class="editor-foot"><span id="count">0 bytes</span><div class="text-actions"><button class="mini" id="paste" type="button">Paste</button><button class="mini" id="clearText" type="button">Clear</button></div></div>
     <div class="cta-area">
-      <div class="validation" id="validation" aria-live="polite"><span class="small-dot" aria-hidden="true"></span><span id="validationText">Ready when you are</span></div>
-      <div class="send-options">
-        <div class="speed-controls"><label for="speed">Typing speed</label>
-          <select id="speed" aria-label="Typing speed">
-            <option value="40">Reliable · 40 / 40 ms</option>
-            <option value="35">Balanced · 35 / 35 ms</option>
-            <option value="30">Fast · 30 / 30 ms</option>
-            <option value="25">Test · 25 / 25 ms</option>
-          </select>
-        </div>
-        <span id="speedBadge">Default</span>
-      </div>
-      <button class="big-btn" id="send" type="button"><span id="sendLabel">Connect ESP32 to send</span><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
-      <div class="transfer-progress" role="progressbar" aria-label="Transfer progress"><div id="bar"></div></div>
-      <p id="transferMessage" role="status" aria-live="polite">Connect your ESP32, then send your code.</p>
+      <div class="validation" id="validation" aria-live="polite"><span id="validationText"></span></div>
+      <div class="send-row"><div class="speed-controls">
+        <div class="speed-heading"><label for="speed">Typing speed</label><output id="speedBadge" for="speed">Steady</output></div>
+        <div class="slider-wrap"><input id="speed" type="range" min="0" max="3" step="1" value="0" aria-valuetext="Steady, 40 milliseconds hold and gap"></div>
+        <div class="speed-scale" aria-hidden="true"><span>Steady</span><span>Faster</span></div>
+      </div><button class="big-btn" id="send" type="button"><span id="sendLabel">Connect &amp; send</span><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button></div>
+      <div class="transfer-progress" id="transferProgress" role="progressbar" aria-label="Upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden><div id="bar"></div></div>
+      <p id="transferMessage" role="status" aria-live="polite"></p>
     </div>
   </main>
-
-  <p class="bottom-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>After transfer, press BOOT on your ESP32.</p>
-
+  <div class="footer-row"><p class="footer-note">Connect → Send → Press BOOT to type</p>
   <details class="advanced" id="advanced">
-    <summary>Advanced <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></summary>
+    <summary>Settings <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></summary>
     <div class="advanced-content">
-      <h2>Preferences</h2><p>Defaults are tuned for your tested Python workflow.</p>
+      <h2>Editor settings</h2>
       <label for="mode">Typing method</label>
       <div class="mode" role="group" aria-label="Typing method" style="display:inline-flex;margin-bottom:8px">
         <button type="button" id="smartMode" aria-pressed="true">Smart indentation</button>
@@ -250,16 +68,11 @@ html[data-theme="dark"]{
         <div><label for="profile">Editor behavior</label><select id="profile"><option value="python">Python auto-indent</option><option value="copy">Copy previous indentation</option><option value="none">No auto-indent</option></select></div>
         <div><label for="indent">Indent size</label><select id="indent"><option value="4">4 spaces</option><option value="2">2 spaces</option><option value="8">8 spaces</option></select></div>
       </div>
-      <details class="technical">
-        <summary>Reliability &amp; typing speed</summary>
-        <p>Default is your proven 40 / 40 ms speed. Faster settings are experimental and require firmware v2.</p>
-        <p>Choose the speed above the Send button. It is transmitted to v2 firmware at the start of your next upload; the firmware does not change speed in the middle of typing.</p>
-        <div class="reliability-note" id="firmwareStatus">Firmware capabilities checked on connection.</div>
-        <p class="reliability-note">A selected speed applies on your next Send. A broken transfer restarts from zero when you tap Retry. BLE reconnects automatically when possible, but code is never resent without your action.</p>
-      </details>
+      <p id="languageInfo">Smart indentation enabled for Python.</p>
+      <details class="technical"><summary>Device &amp; speed</summary><p id="firmwareStatus"></p><p id="speedDetail">40 ms hold · 40 ms gap. Applies to the next send.</p></details>
       <details class="technical">
         <summary>Accuracy benchmark</summary>
-        <p>Load the benchmark, send it into a permitted blank editor, then copy the resulting text back for an exact comparison. Test each speed several times.</p>
+        <p>Send a test, then paste the typed output below to compare.</p>
         <div class="testtools"><button class="outline" id="benchmarkLoad" type="button">Load benchmark</button></div>
         <label for="typedResult">Actual text typed by ESP32</label>
         <textarea id="typedResult" class="benchmark-output" spellcheck="false" autocapitalize="off" placeholder="Paste the typed output from your editor here"></textarea>
@@ -283,12 +96,9 @@ html[data-theme="dark"]{
       <details class="technical">
         <summary>Transfer log</summary><p id="encodedCount">0 / 6000 encoded bytes</p><pre id="log">Ready.</pre>
       </details>
-      <p class="tech-status">A model match does not guarantee how a live editor will interpret keys. Only transfer to devices and applications where you are authorized to use automation.</p>
-    </div>
-  </details>
-</div>
-<script>
 
+    </div>
+  </details></div></div><script>
 'use strict';
 const SERVICE_UUID='76a80001-8c7b-4c6b-9211-57a2b1d00001';
 const WRITE_UUID='76a80002-8c7b-4c6b-9211-57a2b1d00001';
@@ -436,11 +246,14 @@ function planText(ops){let out=[],buf='';function flush(){if(buf){out.push('TYPE
   for(const o of ops){if(o.op==='TEXT'){buf+=o.c;}else{flush();out.push(o.op)}}flush();return out.join('\n');}
 function setStatus(text,bad=false){$('transferMessage').textContent=text;$('transferMessage').className=bad?'bad':'';}
 function log(text){$('log').textContent+='\n'+text;$('log').scrollTop=$('log').scrollHeight;}
-function bar(p){$('bar').style.width=p+'%'}
+function bar(p){$('bar').style.width=p+'%';$('transferProgress').hidden=p===0;$('transferProgress').setAttribute('aria-valuenow',String(p));}
 function connected(){return !!(device?.gatt?.connected&&characteristic)}
 function refresh(){
   const len=encoder.encode(norm($('source').value)).length;
-  $('count').textContent=len.toLocaleString()+' bytes';
+  $('count').textContent=($('source').value?$('source').value.split('\n').length:0)+' lines · '+len.toLocaleString()+' bytes';
+  updateLines();
+  for(const id of ['speed','source','paste','clearText','sample','benchmarkLoad','mode','profile','indent','smartMode','normalMode'])$(id).disabled=busy;
+  document.querySelectorAll('[data-language]').forEach(b=>b.disabled=busy);
   $('connect').disabled=busy||connecting||connected();
   $('disconnect').disabled=busy||connecting||!connected();
   $('connect').textContent=connecting?'Connecting…':connected()?'Connected':device?'Reconnect':'Connect';
@@ -449,14 +262,14 @@ function refresh(){
   $('connectionBadge').classList.toggle('active',connected());
   $('connectionBadge').classList.toggle('reconnecting',!connected()&&(!!reconnectTimer||connecting));
   const stale=!last||last.source!==norm($('source').value)||last.mode!==$('mode').value||last.profile!==$('profile').value||last.size!==Number($('indent').value)||last.language!==language;
-  const speedUnsupported=connected()&&firmwareVersion!==2&&Number($('speed').value)!==40;
-  $('send').disabled=busy||!len||speedUnsupported||(last&&!stale&&last.mode==='smart'&&!last.match);
-  $('sendLabel').textContent=busy?'Working…':!connected()?'Connect ESP32 to send':speedUnsupported?'Speed needs firmware v2.1':retryNeeded?'Retry transfer':'Send code';
-  $('speedBadge').textContent=speedUnsupported?'Needs v2.1':Number($('speed').value)===40?'Proven baseline':'Experimental';
+  const speedUnsupported=connected()&&firmwareVersion!==2&&selectedSpeed()!==40;
+  $('send').disabled=busy||connecting||!len||speedUnsupported||(last&&!stale&&last.mode==='smart'&&!last.match);
+  $('sendLabel').textContent=busy?'Sending…':!connected()?'Connect & send':speedUnsupported?'Choose Steady':retryNeeded?'Retry send':'Send code';
+  updateSpeed();
   $('encodedCount').textContent=(last?last.bytes.length:0)+' / 6000 encoded bytes';
   $('smartMode').setAttribute('aria-pressed',$('mode').value==='smart'?'true':'false');
   $('normalMode').setAttribute('aria-pressed',$('mode').value==='normal'?'true':'false');
-  $('firmwareStatus').textContent=connected()?(firmwareVersion===2?'Firmware v2 detected · speed presets enabled':'Legacy firmware detected · use 40/40 ms only'):'Connect to check firmware speed support.';
+  $('firmwareStatus').textContent=connected()?(firmwareVersion===2?'Firmware v2 · All four speeds available.':'Legacy firmware · Choose Steady (40 ms).'):'Connect an ESP32 to view firmware details.';
 }
 
 function validation(message,type='neutral'){
@@ -561,7 +374,7 @@ async function connectToDevice(allowPicker){
     try{statusCharacteristic=await service.getCharacteristic(STATUS_UUID);}catch(e){statusCharacteristic=null;}
     await probeFirmware();
     reconnectAttempt=0;
-    const msg=retryNeeded?'Reconnected. Tap Retry transfer to resend from byte zero.':'Connected. Paste your code and send.';
+    const msg=retryNeeded?'Reconnected. Ready to retry.':'ESP32 connected.';
     setStatus(msg);log('Connected to '+(device.name||'ESP32')+'; firmware '+firmwareVersion);
     startStatusPoll();
   }catch(e){characteristic=null;statusCharacteristic=null;
@@ -578,7 +391,7 @@ function startStatusPoll(){
       if(result.startsWith('DONE:')){
         lastDoneStatus=result;
         const elapsed=Number(result.slice(5));
-        setStatus(Number.isFinite(elapsed)?'ESP32 finished typing in '+(elapsed/1000).toFixed(1)+' seconds. Compare the output in Accuracy benchmark.':'ESP32 finished typing.');
+        setStatus(Number.isFinite(elapsed)?'Finished typing in '+(elapsed/1000).toFixed(1)+' seconds.':'ESP32 finished typing.');
       }else if(result==='DONE'){
         lastDoneStatus=result;setStatus('ESP32 finished typing.');
       }else if(result==='PAUSED'||result==='PAUSED:BLE'){
@@ -592,7 +405,7 @@ function startStatusPoll(){
   },1700);
 }
 async function syncSpeed(epoch){
-  const size=Number($('speed').value);
+  const size=selectedSpeed();
   if(firmwareVersion!==2){
     if(size!==40)throw Error('Faster speed needs firmware v2. Install it or choose Reliable 40/40.');
     return; // Existing v1.1 firmware remains compatible.
@@ -619,8 +432,8 @@ $('send').onclick=async()=>{
   if(busy)return;
   if(!connected()){
     manualDisconnect=false;reconnectAttempt=0;
-    try{await connectToDevice(true);}catch(e){log('Connect: '+e.message);}
-    return;
+    try{await connectToDevice(true);}catch(e){log('Connect: '+e.message);return;}
+    if(!connected())return;
   }
   if(!last||last.source!==norm($('source').value)||last.mode!==$('mode').value||last.profile!==$('profile').value||last.size!==Number($('indent').value)||last.language!==language){
     if(!simulate())return;
@@ -634,7 +447,7 @@ $('send').onclick=async()=>{
     // the buffer during an active transfer or when the firmware is typing.
     await syncSpeed(epoch);
     const header=r.mode==='smart'?`P${r.bytes.length},${hexCRC(r.bytes)}`:'C';
-    setStatus('Starting fresh '+r.mode+' transfer…');
+    setStatus('Sending to ESP32…');
     await bleWrite(encoder.encode(header),epoch);
     if(statusCharacteristic)await waitFor('RX:',0,5500,epoch);
     const cmd=r.mode==='smart'?66:65;
@@ -657,8 +470,8 @@ $('send').onclick=async()=>{
     ensureEpoch(epoch);
     bar(100);retryNeeded=false;lastCompletedSource=r.source;
     setStatus(receipt==='UNVERIFIED'?'Writes sent without status verification; check ESP32 before pressing BOOT.':
-      'Ready. Open your receiving editor and press BOOT.');
-    log('Verified '+r.bytes.length+' bytes in '+total+' packets; speed '+$('speed').value+'/'+$('speed').value+' ms; receipt='+receipt);
+      'Sent. Focus your editor, then press BOOT to type.');
+    log('Verified '+r.bytes.length+' bytes in '+total+' packets; speed '+selectedSpeed()+'/'+selectedSpeed()+' ms; receipt='+receipt);
   }catch(e){
     retryNeeded=true;bar(0);
     setStatus('Transfer not confirmed: '+e.message+' Tap Retry after reconnecting.',true);
@@ -667,9 +480,9 @@ $('send').onclick=async()=>{
 };
 $('simulate').onclick=simulate;
 $('sample').onclick=()=>{$('source').value=EXAMPLES[language];simulate();};
-$('paste').onclick=async()=>{try{$('source').value=await navigator.clipboard.readText();simulate();}catch(e){setStatus('Clipboard unavailable. Long-press inside the code field and choose Paste.',true);}};
+$('paste').onclick=async()=>{try{$('source').value=await navigator.clipboard.readText();simulate();}catch(e){setStatus('Paste directly into the editor with Ctrl/Cmd+V, or long-press on mobile.',true);}};
 $('copyPlan').onclick=async()=>{if(last)try{await navigator.clipboard.writeText(planText(last.ops));setStatus('HID plan copied.');}catch(e){setStatus('Clipboard permission denied.',true);}};
-$('clearText').onclick=()=>{$('source').value='';last=null;bar(0);validation('Ready when you are');setStatus('Paste code to begin.');refresh();$('source').focus();};
+$('clearText').onclick=()=>{$('source').value='';last=null;bar(0);validation('Ready when you are');setStatus('');retryNeeded=false;refresh();$('source').focus();};
 function changeMode(m){$('mode').value=m;last=null;refresh();if($('source').value.trim())simulate();}
 function setLanguage(code){
   if(!LANGUAGES[code])return;
@@ -677,7 +490,7 @@ function setLanguage(code){
   const spec=LANGUAGES[code];
   $('mode').value=spec.mode;
   $('profile').value=spec.profile;
-  $('currentLanguage').textContent=spec.label;
+  
   $('languageInfo').textContent=spec.info;
   $('source').placeholder=spec.placeholder;
   document.querySelectorAll('[data-language]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.language===code)));
@@ -712,18 +525,32 @@ $('compareOutput').onclick=()=>{
   else {$('benchmarkResult').textContent='Mismatch: line '+d.line+', column '+d.column+'. Expected '+d.expected+', typed '+d.actual+'. '+compareLines(reference,actual)+' different lines.';
     $('benchmarkResult').className='bad';}
 };
-$('speed').addEventListener('change',()=>{
-  const ms=Number($('speed').value);
-  $('speedBadge').textContent=ms===40?'Proven baseline':'Experimental';
-  if(ms<40)validation(firmwareVersion===2?'Experimental speed selected · Applies on next Send':'Faster speeds require firmware v2.1');
-  else validation('Reliable 40 / 40 ms baseline selected.');
-  refresh();
+// Only send timings explicitly supported by the uploaded firmware.
+function selectedSpeed(){return [40,35,30,25][Number($('speed').value)];}
+function updateSpeed(){
+  const range=$('speed'),index=Number(range.value),ms=selectedSpeed();
+  const label=['Steady','Balanced','Fast','Fastest'][index];
+  range.style.setProperty('--fill',(index/3*100)+'%');
+  range.setAttribute('aria-valuetext',label+', '+ms+' milliseconds hold and gap');
+  $('speedBadge').textContent=label;
+  $('speedDetail').textContent=ms+' ms hold · '+ms+' ms gap. Applies to the next send.';
+}
+$('speed').addEventListener('input',()=>{refresh();
+  if(connected()&&firmwareVersion!==2&&selectedSpeed()!==40)setStatus('This firmware supports Steady only. Move the slider to the left.',true);
+  else if($('transferMessage').textContent.startsWith('This firmware supports'))setStatus('');
 });
+function updateLines(){
+  const t=$('source'),g=$('lineNumbers'),n=t.value.split('\n').length;
+  if(g.dataset.lines!==String(n)){g.textContent=Array.from({length:n},(_,i)=>i+1).join('\n');g.dataset.lines=String(n);}
+  g.scrollTop=t.scrollTop;
+}
+$('source').addEventListener('scroll',updateLines);
+if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>{$('lineNumbers').style.height=$('source').clientHeight+'px';updateLines();}).observe($('source'));
 function updateAppearance(){
   const dark=document.documentElement.dataset.theme==='dark';
   $('themeToggle').setAttribute('aria-label',dark?'Switch to light appearance':'Switch to dark appearance');
   $('themeToggle').title=dark?'Light mode':'Dark mode';
-  $('themeMeta').setAttribute('content',dark?'#0b0b0d':'#f5f5f7');
+  $('themeMeta').setAttribute('content',dark?'#131819':'#f7f8fa');
 }
 $('themeToggle').addEventListener('click',()=>{
   const next=document.documentElement.dataset.theme==='dark'?'light':'dark';
