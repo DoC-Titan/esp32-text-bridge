@@ -3,7 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f5f5f7">
+<meta name="theme-color" id="themeMeta" content="#f5f5f7">
+<script>
+try{
+  const savedTheme=localStorage.getItem('textbridge-appearance');
+  const systemDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.dataset.theme=(savedTheme==='light'||savedTheme==='dark')?savedTheme:(systemDark?'dark':'light');
+}catch(e){document.documentElement.dataset.theme='light';}
+</script>
 <meta name="description" content="A simple Bluetooth code bridge for your ESP32.">
 <title>TextBridge — Reliable wireless code.</title>
 <style>
@@ -119,6 +126,59 @@ button:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-v
 .reliability-note{color:var(--secondary);font-size:12px;line-height:1.5;margin-top:9px}
 #benchmarkResult{font-size:12px;margin-top:10px;white-space:pre-wrap}
 @media(max-width:640px){.benchmark-output{height:120px}.advanced-content{padding:14px}}
+
+/* Appearance: neutral monochrome surfaces + Apple-like blue accent. */
+:root{--field:#fff;--subtle:#f5f5f7;--subtle-hover:#ebebef;--divider:#f0f0f2;--off-btn:#b2c8df;--hint:#aaaab0}
+html[data-theme="dark"]{
+ color-scheme:dark;--bg:#0b0b0d;--surface:#1c1c1e;--text:#f5f5f7;
+ --secondary:#a1a1a6;--hairline:#37373b;--blue:#0a84ff;
+ --blue-hover:#409cff;--blue-soft:#132943;--green:#35c98a;
+ --red:#ff686c;--field:#1c1c1e;--subtle:#2c2c2e;
+ --subtle-hover:#38383a;--divider:#37373b;--off-btn:#425368;--hint:#77777e;
+ --shadow:0 16px 48px rgba(0,0,0,.26),0 2px 9px rgba(0,0,0,.2)
+}
+.topbar{border-bottom-color:var(--divider)}
+.brandmark{background:var(--text);color:var(--bg)}
+.link-btn:hover,.mini:hover{background:var(--blue-soft)}
+.app{border-color:var(--hairline)}
+.toolbar,.editor-foot{border-bottom-color:var(--divider)}
+.mode,.advanced select,.metrics span,.technical pre,.outline:hover{background:var(--subtle)}
+.mode button[aria-pressed="true"]{background:var(--surface);color:var(--text)}
+#source{background:var(--field);color:var(--text)}
+#source::placeholder{color:var(--hint)}
+.cta-area{background:var(--surface)}
+.big-btn:disabled{background:var(--off-btn)}
+.transfer-progress{background:var(--subtle-hover)}
+.advanced>summary{color:var(--secondary)}
+.advanced>summary:hover{background:var(--subtle-hover)}
+.advanced-content{background:var(--surface)}
+.outline{background:var(--surface);color:var(--text)}
+.benchmark-output{background:var(--subtle);color:var(--text)}
+.icon-btn{height:36px;width:36px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:var(--text);cursor:pointer;transition:background .2s,transform .2s}
+.icon-btn:hover{background:var(--subtle-hover)}.icon-btn:active{transform:scale(.94)}
+.icon-btn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.8}
+.icon-btn .sun{display:none}html[data-theme="dark"] .icon-btn .moon{display:none}html[data-theme="dark"] .icon-btn .sun{display:block}
+.language-bar{display:flex;align-items:center;gap:7px;overflow-x:auto;scrollbar-width:none;padding:12px 20px 10px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;border-bottom:1px solid var(--divider)}
+.language-bar::-webkit-scrollbar{display:none}
+.lang-btn{border:0;flex:none;scroll-snap-align:start;border-radius:10px;background:transparent;color:var(--secondary);padding:9px 14px;font-weight:630;font-size:13px;cursor:pointer;transition:background .18s,color .18s}
+.lang-btn:hover{background:var(--subtle)}
+.lang-btn[aria-pressed="true"]{background:var(--text);color:var(--surface)}
+#languageInfo{font-size:11.5px;color:var(--secondary);padding:8px 22px 0;min-height:28px;line-height:1.4}
+.send-options{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:3px 0 14px}
+.speed-controls{display:flex;align-items:center;gap:10px;min-width:0}
+.speed-controls label{font-size:12.5px;color:var(--secondary);white-space:nowrap}
+.speed-controls select{font-size:12.5px;font-weight:590;color:var(--text);background:var(--subtle);border:1px solid var(--hairline);border-radius:10px;padding:8px 28px 8px 10px;min-height:38px;cursor:pointer}
+#speedBadge{font-size:11px;color:var(--secondary)}
+@media(max-width:640px){
+ .icon-btn{width:35px;height:35px}.topright{gap:0}
+ .language-bar{padding:10px 10px 8px;gap:4px}
+ .lang-btn{padding:9px 11px;font-size:12px}
+ #languageInfo{padding:7px 14px 0}
+ .send-options{align-items:flex-start}.speed-controls{gap:7px}
+ .speed-controls label{font-size:12px}
+ .speed-controls select{max-width:160px;padding:8px 24px 8px 7px}
+ #speedBadge{font-size:10.5px;text-align:right}
+}
 </style>
 </head>
 <body>
@@ -126,6 +186,10 @@ button:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-v
   <header class="topbar">
     <div class="brand"><span class="brandmark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/><path d="m10 14 4-4"/></svg></span>TextBridge</div>
     <div class="topright">
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="Switch to dark appearance" title="Change appearance">
+        <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 14.2A8.8 8.8 0 0 1 9.8 3.6 8.8 8.8 0 1 0 20.4 14.2Z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+      </button>
       <span class="connection" id="connectionBadge"><span class="led" aria-hidden="true"></span><span id="connected">Not connected</span></span>
       <button class="link-btn" id="connect">Connect</button>
     </div>
@@ -137,14 +201,15 @@ button:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-v
   </section>
 
   <main class="app">
-    <div class="toolbar">
-      <span class="toolbar-label">Your code</span>
-      <div class="mode" role="group" aria-label="Typing mode">
-        <button type="button" id="smartMode" aria-pressed="true">Smart Python</button>
-        <button type="button" id="normalMode" aria-pressed="false">Normal</button>
-      </div>
-      <select id="mode" aria-label="Typing mode"><option value="smart">Smart Python</option><option value="normal">Normal text</option></select>
-    </div>
+    <div class="toolbar"><span class="toolbar-label">Your code</span><span id="currentLanguage" class="tech-status">Python</span></div>
+    <nav class="language-bar" aria-label="Programming language">
+      <button class="lang-btn" type="button" data-language="python" aria-pressed="true">Python</button>
+      <button class="lang-btn" type="button" data-language="java" aria-pressed="false">Java</button>
+      <button class="lang-btn" type="button" data-language="cpp" aria-pressed="false">C++</button>
+      <button class="lang-btn" type="button" data-language="c" aria-pressed="false">C</button>
+      <button class="lang-btn" type="button" data-language="text" aria-pressed="false">Text</button>
+    </nav>
+    <p id="languageInfo">Smart indentation enabled for Python.</p>
     <div class="editor-wrap"><textarea id="source" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Paste code" placeholder="Paste your Python code here…"></textarea></div>
     <div class="editor-foot">
       <span id="count">0 bytes</span>
@@ -152,6 +217,17 @@ button:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-v
     </div>
     <div class="cta-area">
       <div class="validation" id="validation" aria-live="polite"><span class="small-dot" aria-hidden="true"></span><span id="validationText">Ready when you are</span></div>
+      <div class="send-options">
+        <div class="speed-controls"><label for="speed">Typing speed</label>
+          <select id="speed" aria-label="Typing speed">
+            <option value="40">Reliable · 40 / 40 ms</option>
+            <option value="35">Balanced · 35 / 35 ms</option>
+            <option value="30">Fast · 30 / 30 ms</option>
+            <option value="25">Test · 25 / 25 ms</option>
+          </select>
+        </div>
+        <span id="speedBadge">Default</span>
+      </div>
       <button class="big-btn" id="send" type="button"><span id="sendLabel">Connect ESP32 to send</span><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
       <div class="transfer-progress" role="progressbar" aria-label="Transfer progress"><div id="bar"></div></div>
       <p id="transferMessage" role="status" aria-live="polite">Connect your ESP32, then send your code.</p>
@@ -164,6 +240,12 @@ button:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-v
     <summary>Advanced <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></summary>
     <div class="advanced-content">
       <h2>Preferences</h2><p>Defaults are tuned for your tested Python workflow.</p>
+      <label for="mode">Typing method</label>
+      <div class="mode" role="group" aria-label="Typing method" style="display:inline-flex;margin-bottom:8px">
+        <button type="button" id="smartMode" aria-pressed="true">Smart indentation</button>
+        <button type="button" id="normalMode" aria-pressed="false">Normal text</button>
+      </div>
+      <select id="mode" aria-label="Typing method"><option value="smart">Smart indentation</option><option value="normal">Normal text</option></select>
       <div class="advanced-grid">
         <div><label for="profile">Editor behavior</label><select id="profile"><option value="python">Python auto-indent</option><option value="copy">Copy previous indentation</option><option value="none">No auto-indent</option></select></div>
         <div><label for="indent">Indent size</label><select id="indent"><option value="4">4 spaces</option><option value="2">2 spaces</option><option value="8">8 spaces</option></select></div>
@@ -171,13 +253,7 @@ button:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-v
       <details class="technical">
         <summary>Reliability &amp; typing speed</summary>
         <p>Default is your proven 40 / 40 ms speed. Faster settings are experimental and require firmware v2.</p>
-        <label for="speed">Typing speed</label>
-        <select id="speed">
-          <option value="40">Reliable · 40 / 40 ms</option>
-          <option value="35">Balanced test · 35 / 35 ms</option>
-          <option value="30">Fast test · 30 / 30 ms</option>
-          <option value="25">Experimental · 25 / 25 ms</option>
-        </select>
+        <p>Choose the speed above the Send button. It is transmitted to v2 firmware at the start of your next upload; the firmware does not change speed in the middle of typing.</p>
         <div class="reliability-note" id="firmwareStatus">Firmware capabilities checked on connection.</div>
         <p class="reliability-note">A selected speed applies on your next Send. A broken transfer restarts from zero when you tap Retry. BLE reconnects automatically when possible, but code is never resent without your action.</p>
       </details>
@@ -234,6 +310,34 @@ const TEST=`class Solution:
 let device=null,characteristic=null,statusCharacteristic=null,busy=false,last=null;
 let connecting=false,manualDisconnect=false,reconnectTimer=null,reconnectAttempt=0;
 let connectionEpoch=0,firmwareVersion=1,retryNeeded=false,transferInFlight=false;
+let language='python';
+const LANGUAGES={
+  python:{label:'Python',mode:'smart',profile:'python',info:'Smart indentation enabled for Python.',placeholder:'Paste your Python code here…'},
+  java:{label:'Java',mode:'smart',profile:'copy',info:'Smart indentation preview. Some Java editors auto-insert extra closing braces; disable auto-close if needed.',placeholder:'Paste your Java code here…'},
+  cpp:{label:'C++',mode:'smart',profile:'copy',info:'Smart indentation preview. Auto-closing braces are not handled yet.',placeholder:'Paste your C++ code here…'},
+  c:{label:'C',mode:'smart',profile:'copy',info:'Smart indentation preview. Auto-closing braces are not handled yet.',placeholder:'Paste your C code here…'},
+  text:{label:'Text',mode:'normal',profile:'none',info:'Plain-text typing without editor indentation correction.',placeholder:'Paste plain text here…'}
+};
+const EXAMPLES={
+  python:TEST,
+  java:`public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}`,
+  cpp:`#include <iostream>
+int main() {
+    std::cout << "Hello, World!" << std::endl;
+    return 0;
+}`,
+  c:`#include <stdio.h>
+int main(void) {
+    printf("Hello, World!\\n");
+    return 0;
+}`,
+  text:'Hello from TextBridge!'
+};
+
 let lastCompletedSource=null,lastDoneStatus='',statusPollTimer=null;
 const BENCH=`# TextBridge accuracy benchmark
 class Matrix:
@@ -317,8 +421,8 @@ class VirtualEditor {
 function mismatch(expected,actual){if(expected===actual)return null;let i=0;while(i<expected.length&&i<actual.length&&expected[i]===actual[i])i++;
   const prefix=expected.slice(0,i);return {line:prefix.split('\n').length,column:prefix.length-prefix.lastIndexOf('\n'),expected:JSON.stringify(expected[i]??'[EOF]'),actual:JSON.stringify(actual[i]??'[EOF]')};}
 function compareLines(a,b){const x=a.split('\n'),y=b.split('\n');let n=0;for(let i=0;i<Math.max(x.length,y.length);i++)if(x[i]!==y[i])n++;return n;}
-function build(src,mode,profile,size){const source=norm(src);if(!source.trim())throw Error('Paste some Python code.');assertAscii(source);
-  if(source.includes('\t')&&mode==='smart')throw Error('Smart Python v1 requires spaces for indentation. Convert tabs to spaces before sending.');
+function build(src,mode,profile,size){const source=norm(src);if(!source.trim())throw Error('Paste some code.');assertAscii(source);
+  if(source.includes('\t')&&mode==='smart')throw Error('Smart indentation requires spaces. Convert tabs to spaces before sending.');
   const transmitted=mode==='smart'?encodePlan(source):source;
   const bytes=encoder.encode(transmitted);
   if(bytes.length>MAX_BYTES)throw Error('Encoded transfer is '+bytes.length+' bytes; maximum '+MAX_BYTES+'. Use a shorter test.');
@@ -344,9 +448,11 @@ function refresh(){
   $('connected').textContent=connected()?'Connected':connecting?'Connecting…':reconnectTimer?'Reconnecting…':'Offline';
   $('connectionBadge').classList.toggle('active',connected());
   $('connectionBadge').classList.toggle('reconnecting',!connected()&&(!!reconnectTimer||connecting));
-  const stale=!last||last.source!==norm($('source').value)||last.mode!==$('mode').value||last.profile!==$('profile').value||last.size!==Number($('indent').value);
-  $('send').disabled=busy||!len||(last&&!stale&&last.mode==='smart'&&!last.match);
-  $('sendLabel').textContent=busy?'Working…':!connected()?'Connect ESP32 to send':retryNeeded?'Retry transfer':'Send code';
+  const stale=!last||last.source!==norm($('source').value)||last.mode!==$('mode').value||last.profile!==$('profile').value||last.size!==Number($('indent').value)||last.language!==language;
+  const speedUnsupported=connected()&&firmwareVersion!==2&&Number($('speed').value)!==40;
+  $('send').disabled=busy||!len||speedUnsupported||(last&&!stale&&last.mode==='smart'&&!last.match);
+  $('sendLabel').textContent=busy?'Working…':!connected()?'Connect ESP32 to send':speedUnsupported?'Speed needs firmware v2.1':retryNeeded?'Retry transfer':'Send code';
+  $('speedBadge').textContent=speedUnsupported?'Needs v2.1':Number($('speed').value)===40?'Proven baseline':'Experimental';
   $('encodedCount').textContent=(last?last.bytes.length:0)+' / 6000 encoded bytes';
   $('smartMode').setAttribute('aria-pressed',$('mode').value==='smart'?'true':'false');
   $('normalMode').setAttribute('aria-pressed',$('mode').value==='normal'?'true':'false');
@@ -360,7 +466,7 @@ function validation(message,type='neutral'){
 
 function simulate(){try{
   const mode=$('mode').value,profile=$('profile').value,size=Number($('indent').value);
-  const r=build($('source').value,mode,profile,size);last={...r,mode,profile,size};
+  const r=build($('source').value,mode,profile,size);last={...r,mode,profile,size,language};
   $('originalView').textContent=r.source;$('outputView').textContent=r.simulated;
   $('naiveResult').textContent=r.naiveDiff+' changed lines';
   $('smartResult').textContent=r.match?'Exact model match':'Mismatch';
@@ -368,8 +474,11 @@ function simulate(){try{
   $('comparison').textContent=r.match?'Exact match in virtual simulation; real editor behavior can differ.':
      'First mismatch: line '+r.diff.line+', column '+r.diff.column+' (expected '+r.diff.expected+'; got '+r.diff.actual+').';
   $('simMessage').textContent=r.match?'The virtual formatting check passed.':mode==='normal'?'Normal mode may alter formatting in auto-indenting editors.':'Smart simulation mismatch. Transfer blocked.';
+  if(language!=='python'&&language!=='text'&&mode==='smart'&&r.match) $('simMessage').textContent+=' Brace/quote auto-pairing is not simulated.';
   $('simMessage').className=r.match?'':'bad';
-  validation(mode==='normal'?'Normal mode · No auto-indent correction':r.match?'Formatting check passed':'Formatting check failed',r.match?'good':mode==='normal'?'neutral':'bad');
+  const braces=language!=='python'&&language!=='text'&&mode==='smart';
+  validation(mode==='normal'?'Normal mode · No auto-indent correction':braces&&r.match?'Indentation model passed · Auto-braces not verified':r.match?'Formatting check passed':'Formatting check failed',
+    braces&&r.match?'neutral':r.match?'good':mode==='normal'?'neutral':'bad');
   $('copyPlan').disabled=false;
   return true;
 }catch(e){last=null;$('smartResult').textContent='Not ready';$('simMessage').textContent=e.message;$('simMessage').className='bad';$('copyPlan').disabled=true;
@@ -513,7 +622,7 @@ $('send').onclick=async()=>{
     try{await connectToDevice(true);}catch(e){log('Connect: '+e.message);}
     return;
   }
-  if(!last||last.source!==norm($('source').value)||last.mode!==$('mode').value||last.profile!==$('profile').value||last.size!==Number($('indent').value)){
+  if(!last||last.source!==norm($('source').value)||last.mode!==$('mode').value||last.profile!==$('profile').value||last.size!==Number($('indent').value)||last.language!==language){
     if(!simulate())return;
   }
   if(!last||(last.mode==='smart'&&!last.match))return;
@@ -557,11 +666,26 @@ $('send').onclick=async()=>{
   }finally{transferInFlight=false;busy=false;refresh();}
 };
 $('simulate').onclick=simulate;
-$('sample').onclick=()=>{$('source').value=TEST;simulate();};
+$('sample').onclick=()=>{$('source').value=EXAMPLES[language];simulate();};
 $('paste').onclick=async()=>{try{$('source').value=await navigator.clipboard.readText();simulate();}catch(e){setStatus('Clipboard unavailable. Long-press inside the code field and choose Paste.',true);}};
 $('copyPlan').onclick=async()=>{if(last)try{await navigator.clipboard.writeText(planText(last.ops));setStatus('HID plan copied.');}catch(e){setStatus('Clipboard permission denied.',true);}};
 $('clearText').onclick=()=>{$('source').value='';last=null;bar(0);validation('Ready when you are');setStatus('Paste code to begin.');refresh();$('source').focus();};
 function changeMode(m){$('mode').value=m;last=null;refresh();if($('source').value.trim())simulate();}
+function setLanguage(code){
+  if(!LANGUAGES[code])return;
+  language=code;
+  const spec=LANGUAGES[code];
+  $('mode').value=spec.mode;
+  $('profile').value=spec.profile;
+  $('currentLanguage').textContent=spec.label;
+  $('languageInfo').textContent=spec.info;
+  $('source').placeholder=spec.placeholder;
+  document.querySelectorAll('[data-language]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.language===code)));
+  last=null;refresh();
+  if($('source').value.trim())simulate();
+  else validation('Ready when you are');
+}
+document.querySelectorAll('[data-language]').forEach(b=>b.addEventListener('click',()=>setLanguage(b.dataset.language)));
 $('smartMode').onclick=()=>changeMode('smart');
 $('normalMode').onclick=()=>changeMode('normal');
 let typingCheck=null;
@@ -573,7 +697,7 @@ for(const id of ['source','profile','indent'])$(id).addEventListener('input',sch
 $('source').addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();const t=$('source'),a=t.selectionStart,b=t.selectionEnd;
   t.setRangeText('    ',a,b,'end');scheduleCheck();}});
 $('benchmarkLoad').onclick=()=>{
-  $('source').value=BENCH;
+  setLanguage('python');$('source').value=BENCH;
   $('mode').value='smart';last=null;
   $('typedResult').value='';$('benchmarkResult').textContent='Send this code, then paste the exact output here.';
   scheduleCheck();$('advanced').open=true;
@@ -589,8 +713,31 @@ $('compareOutput').onclick=()=>{
     $('benchmarkResult').className='bad';}
 };
 $('speed').addEventListener('change',()=>{
-  if(Number($('speed').value)<40)validation('Experimental speed selected. Test accuracy before keeping it.');
+  const ms=Number($('speed').value);
+  $('speedBadge').textContent=ms===40?'Proven baseline':'Experimental';
+  if(ms<40)validation(firmwareVersion===2?'Experimental speed selected · Applies on next Send':'Faster speeds require firmware v2.1');
   else validation('Reliable 40 / 40 ms baseline selected.');
+  refresh();
 });
+function updateAppearance(){
+  const dark=document.documentElement.dataset.theme==='dark';
+  $('themeToggle').setAttribute('aria-label',dark?'Switch to light appearance':'Switch to dark appearance');
+  $('themeToggle').title=dark?'Light mode':'Dark mode';
+  $('themeMeta').setAttribute('content',dark?'#0b0b0d':'#f5f5f7');
+}
+$('themeToggle').addEventListener('click',()=>{
+  const next=document.documentElement.dataset.theme==='dark'?'light':'dark';
+  document.documentElement.dataset.theme=next;
+  try{localStorage.setItem('textbridge-appearance',next);}catch(e){}
+  updateAppearance();
+});
+const systemTheme=window.matchMedia?.('(prefers-color-scheme: dark)');
+systemTheme?.addEventListener?.('change',e=>{
+  let stored=null;try{stored=localStorage.getItem('textbridge-appearance')}catch(err){}
+  if(stored!=='dark'&&stored!=='light'){
+    document.documentElement.dataset.theme=e.matches?'dark':'light';updateAppearance();
+  }
+});
+updateAppearance();
 $('source').value='';validation('Ready when you are');refresh();
 </script></body></html>
