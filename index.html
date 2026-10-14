@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-palette="terracotta">
+<html lang="en" data-palette="rose">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -7,8 +7,7 @@
 <script>
 try{
   const savedTheme=localStorage.getItem('textbridge-appearance');
-  const systemDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
-  document.documentElement.dataset.theme=(savedTheme==='light'||savedTheme==='dark')?savedTheme:(systemDark?'dark':'light');
+  document.documentElement.dataset.theme =   (savedTheme === 'light' || savedTheme === 'dark')     ? savedTheme     : 'light';
 }catch(e){document.documentElement.dataset.theme='light';}
 try{
   const savedPalette=localStorage.getItem('textbridge-palette');
@@ -615,13 +614,6 @@ $('themeToggle').addEventListener('click',()=>{
   document.documentElement.dataset.theme=next;
   try{localStorage.setItem('textbridge-appearance',next);}catch(e){}
   updateAppearance();
-});
-const systemTheme=window.matchMedia?.('(prefers-color-scheme: dark)');
-systemTheme?.addEventListener?.('change',e=>{
-  let stored=null;try{stored=localStorage.getItem('textbridge-appearance')}catch(err){}
-  if(stored!=='dark'&&stored!=='light'){
-    document.documentElement.dataset.theme=e.matches?'dark':'light';updateAppearance();
-  }
 });
 updateAppearance();
 $('source').value='';validation('Ready when you are');refresh();
